@@ -9,7 +9,7 @@
 = Context and Problem Statement
 
 The built Angular bundle must be served to browsers, and the SPA must reach the
-Express API. Two common topologies: the API serves the static bundle itself, or a
+API. Two common topologies: the API serves the static bundle itself, or a
 dedicated web server sits in front. The app streams MP3 audio (the proposal
 requires HTTP Range support) and uses a session cookie.
 

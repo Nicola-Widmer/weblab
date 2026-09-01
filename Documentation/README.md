@@ -24,6 +24,7 @@ decision and reference it from section 9.
 | 0003 | Dedicated nginx container serves the SPA and reverse-proxies `/api` | Accepted |
 | 0004 | PostgreSQL for metadata; audio bytes behind a `FileStorage` port (local FS default, S3 optional) | Accepted |
 | 0005 | Server-side session-cookie auth; ownership enforced inside use cases | Accepted |
+| 0006 | OpenAPI-first typed frontend client (`@nestjs/swagger` → `openapi.json` → HeyApi); TanStack Query for server state | Accepted |
 
 ## Building the PDFs
 

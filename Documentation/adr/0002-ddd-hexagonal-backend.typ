@@ -11,7 +11,7 @@
 The backend holds the business rules: upload validation, playlist ordering,
 per-user authorization, and deletes that affect playlists and playback. The
 proposal asks for a clear structure and a real test pyramid. How should the
-Express backend be organised internally?
+backend be organised internally?
 
 = Decision Drivers
 
@@ -39,13 +39,36 @@ each other's internals; where one must react to another (a deleted song leaving
 playlists), that goes through an in-process event, kept synchronous — no message
 broker until there is a second process.
 
+== Edge framework: NestJS
+
+The constraints name Express; the layering above needs module boundaries,
+dependency injection and a validated HTTP edge, which on plain Express are all
+hand-rolled. *NestJS* (on the Express platform) is used instead:
+
+- One Nest module per bounded context maps directly onto the structure above;
+  DI wires `@Injectable()` adapters to the ports; the domain layer still imports
+  no framework code (Nest lives only in `*.controller.ts`, `*.module.ts`,
+  adapters).
+- `@nestjs/swagger` reflects over the controllers and DTO classes to emit
+  `backend/openapi.json` — the frontend contract
+  (#link("0006-openapi-typed-client-tanstack-query.pdf")[ADR-0006]) is derived
+  from the endpoint code, with no schema DSL and no hand-written spec. Plain
+  Express plus a schema library (`zod`) or a codegen tool (`tsoa`) were the
+  alternatives; both add a second description of every payload or a bespoke
+  build step for less benefit here.
+
 == Consequences
 
 - Good: the core logic is I/O-free and fast to test; storage is swappable;
   boundaries are explicit.
+- Good: DI and the module system come from the framework; the OpenAPI document
+  is generated from the controllers/DTOs, not maintained separately.
 - Good: leaves the door open to splitting into services later.
 - Bad: more indirection than MVC — interfaces, mapping between stored rows and
   domain objects, wiring. A deliberate cost for a small system.
+- Bad: framework coupling at the edge — controllers and adapters are Nest
+  classes; DTOs must be classes (runtime reflection). The backend package is
+  CommonJS (the Nest norm) while the frontend is ESM.
 - Bad: the "just import the other module" shortcut has to be resisted; may need
   a lint rule.
 

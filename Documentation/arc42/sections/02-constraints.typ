@@ -10,14 +10,16 @@
   align: (left + horizon, left + horizon),
   [Constraint], [Consequence],
   [Frontend framework: *Angular*], [SPA, TypeScript, standalone components.],
-  [Backend: *Express.js*, REST], [Node.js/TypeScript HTTP layer; no GraphQL, no SSR.],
+  [Backend: *NestJS* (Express platform), REST], [Node.js/TypeScript HTTP layer;
+   no GraphQL, no SSR. OpenAPI spec derived from controllers/DTOs (see ADR-0002).],
   [Database: *PostgreSQL*], [Relational metadata store; SQL migrations.],
   [Audio bytes on the *server filesystem* (mounted volume), DB holds the path;
    S3-compatible storage is an optional (Could) alternative],
   [A storage abstraction is needed so the backend is not hard-wired to `fs`.],
-  [Tests: *Jest* (unit), *Supertest* + real PostgreSQL (integration),
-   *Playwright* (E2E)], [Ports must be mockable; integration tests need a real DB
-   (and MinIO for the S3 path).],
+  [Tests: *Vitest* (unit; Jest-compatible API, native ESM — replaces the
+   proposal's Jest on both halves), *Supertest* + real PostgreSQL
+   (integration), *Playwright* (E2E)], [Ports must be mockable; integration
+   tests need a real DB (and MinIO for the S3 path).],
   [Packaging: *Docker Compose*, `docker compose up`],
   [Every runtime dependency is a Compose service; config comes from env vars.],
   [Target: modern evergreen browsers], [No IE/legacy shims; `<audio>` + Media

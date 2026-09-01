@@ -8,7 +8,7 @@
 
 = Context and Problem Statement
 
-The Web Music Player has an Angular frontend and an Express.js REST backend, built
+The Web Music Player has an Angular frontend and a NestJS REST backend, built
 by one developer against an academic deadline. How should the code be organised
 and shipped — one repository or several, and the backend as one service or split
 into parts?
@@ -39,7 +39,7 @@ paying now.
 
 == Consequences
 
-- Good: one checkout, one build, one CI pipeline; API and UI changes are atomic.
+- Good: one checkout, one build; API and UI changes are atomic.
 - Neutral: frontend and backend share a repository, a version and a release by
   choice; they may still be packaged as separate images
   (#link("0003-nginx-serves-frontend.pdf")[ADR-0003]).

@@ -24,8 +24,8 @@ describes *how* the system is built and *why*.
   [Playback starts without downloading the whole file; seeking works on mobile.
    Requires HTTP Range (`206 Partial Content`) end to end.],
   [3], [Testability & maintainability],
-  [Domain logic isolated from Express/PostgreSQL so a use case is unit-testable
-   with no I/O; a clear test pyramid (Jest / Supertest / Playwright).],
+  [Domain logic isolated from NestJS/PostgreSQL so a use case is unit-testable
+   with no I/O; a clear test pyramid (Vitest / Supertest / Playwright).],
   [4], [Per-user data privacy],
   [A user only ever sees or changes their own songs and playlists; enforced
    server-side, not just in the UI.],

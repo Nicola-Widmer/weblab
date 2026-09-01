@@ -2,7 +2,7 @@
 #show: adr.with(
   "0004",
   "PostgreSQL for metadata; audio files behind a storage abstraction",
-  status: "Proposed",
+  status: "Accepted",
   date: "2026-09-01",
 )
 

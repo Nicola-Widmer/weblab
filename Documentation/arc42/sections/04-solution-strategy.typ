@@ -12,15 +12,17 @@
   [Maintainability, testability],
   [*Monorepo monolith*: `backend/`, `frontend/`, Compose at the root — one
    deployable, one repo, simple mental model.], [#adrlink("0001-monorepo-monolith")],
-  [Testability, maintainability],
-  [*DDD + hexagonal* backend: one module per bounded context
-   (`songs`, `playlists`, `identity`, `streaming`); the dependency rule points
-   inward; cross-context communication via an in-process domain-event bus.],
+  [Testability, maintainability, one API contract],
+  [*DDD + hexagonal* backend on *NestJS* (Express platform): one Nest module per
+   bounded context (`songs`, `playlists`, `identity`, `streaming`), DI for
+   adapters, the dependency rule points inward, cross-context communication via
+   an in-process domain-event bus. `@nestjs/swagger` derives `openapi.json` from
+   the controllers and DTO classes — no schema DSL, no hand-written spec.],
   [#adrlink("0002-ddd-hexagonal-backend")],
   [Streaming performance, one public origin],
   [A *dedicated nginx container* serves the built SPA and reverse-proxies
-   `/api` to Express — static files and `Range` streaming stay off the Node
-   event loop; single origin keeps the session cookie first-party.],
+   `/api` to the NestJS API — static files and `Range` streaming stay off the
+   Node event loop; single origin keeps the session cookie first-party.],
   [#adrlink("0003-nginx-serves-frontend")],
   [Portability, future multi-node],
   [*PostgreSQL for metadata* + *pluggable binary storage* behind a

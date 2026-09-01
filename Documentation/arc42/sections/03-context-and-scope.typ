@@ -32,17 +32,17 @@ An *operator* deploys and runs the Compose stack.
   [Channel], [Protocol], [Payload / purpose],
   [Browser ↔ nginx], [HTTPS], [SPA assets (HTML/JS/CSS); REST/JSON API calls;
    audio stream with `Range` / `206`.],
-  [nginx ↔ Express API], [HTTP (proxy)], [Reverse-proxied `/api/*`; `Range`,
+  [nginx ↔ NestJS API], [HTTP (proxy)], [Reverse-proxied `/api/*`; `Range`,
    `X-Forwarded-*` headers passed through.],
-  [Express API ↔ PostgreSQL], [TCP (pg wire)], [Song & playlist metadata, users,
+  [NestJS API ↔ PostgreSQL], [TCP (pg wire)], [Song & playlist metadata, users,
    session records.],
-  [Express API ↔ Blob storage], [filesystem calls _or_ S3 HTTP API],
+  [NestJS API ↔ Blob storage], [filesystem calls _or_ S3 HTTP API],
   [Read/write/delete audio objects; range reads for streaming.],
 )
 
 ```
    ┌──────────┐  HTTPS   ┌─────────┐  HTTP   ┌──────────────┐
-   │ Browser  │─────────▶│  nginx  │────────▶│  Express API │
+   │ Browser  │─────────▶│  nginx  │────────▶│  NestJS API  │
    │  (SPA)   │◀─────────│  proxy  │◀────────│ DDD / hexa.  │
    └──────────┘          └─────────┘         └──┬────────┬──┘
                                                │        │

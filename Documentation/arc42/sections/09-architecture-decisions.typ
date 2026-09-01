@@ -27,8 +27,11 @@ back here.
    rather than serving static files from Express.], [Accepted],
   [#adrlink("0004-metadata-postgres-blob-storage-port")],
   [PostgreSQL for metadata; audio bytes behind a `FileStorage` port with
-   local-FS default and optional S3 adapter.], [Proposed],
+   local-FS default and optional S3 adapter.], [Accepted],
   [#adrlink("0005-session-cookie-auth")],
   [Server-side session-cookie authentication; ownership enforced inside use
    cases; `AUTH_ENABLED=false` local-user mode.], [Accepted],
+  [#adrlink("0006-openapi-typed-client-tanstack-query")],
+  [OpenAPI-first typed frontend client: `@nestjs/swagger` → `openapi.json` →
+   HeyApi; TanStack Query for server state.], [Accepted],
 )

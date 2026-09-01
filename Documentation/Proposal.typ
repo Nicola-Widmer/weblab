@@ -48,7 +48,7 @@ The two self-defined CRUD resources are *Songs* and *Playlists*.
   stroke: 0.4pt + rgb("#cccccc"),
   table.header([*Concern*], [*Choice*]),
   [Frontend], [Angular],
-  [Backend], [Express.js (REST)],
+  [Backend], [NestJS (REST)],
   [Database], [PostgreSQL — song/playlist metadata],
   [Audio storage], [Server filesystem (mounted volume); DB holds the path],
   [Tests], [Jest (unit), Supertest + real PostgreSQL (integration), Playwright (E2E)],
