@@ -1,0 +1,15 @@
+# Build context for frontend/Dockerfile is the repo root — keep it lean.
+**/node_modules
+**/dist
+**/coverage
+**/.angular
+backend/**
+!backend/openapi.json
+frontend/dist
+frontend/test-results
+frontend/playwright-report
+Documentation
+.git
+*.log
+.env
+.env.local

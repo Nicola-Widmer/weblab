@@ -1,0 +1,13 @@
+# Not a workspace — pnpm 11 reads project-level settings from this file.
+# esbuild (Vitest) and @swc/core (Nest test transform, nest build) ship prebuilt
+# binaries but need their postinstall to place them; without this `pnpm install`
+# trips the ERR_PNPM_IGNORED_BUILDS gate in a clean environment. @scarf/scarf is
+# install analytics — left disabled.
+allowBuilds:
+  '@scarf/scarf': false
+  '@swc/core': true
+  esbuild: true
+
+onlyBuiltDependencies:
+  - esbuild
+  - '@swc/core'
