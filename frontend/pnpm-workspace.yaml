@@ -1,0 +1,15 @@
+# Not a workspace — pnpm 11 reads project-level settings from this file.
+# Allow postinstall build scripts for Angular's native build deps (prebuilt
+# binaries are used anyway); without this `pnpm install` fails the
+# ERR_PNPM_IGNORED_BUILDS gate in a clean environment (e.g. Docker).
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - lmdb
+  - msgpackr-extract
