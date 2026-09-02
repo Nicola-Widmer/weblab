@@ -4,39 +4,350 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api` | (string & {});
 };
 
+export type CredentialsDto = {
+    email: string;
+    password: string;
+};
+
 export type UserDto = {
     id: string;
-    name: string;
     email: string;
+    createdAt: string;
 };
 
-export type UpdateUserDto = {
-    name: string;
-    email: string;
+export type SessionDto = {
+    token: string;
 };
 
-export type UsersControllerGetUserData = {
+export type SongDto = {
+    id: string;
+    ownerId: string;
+    title: string;
+    artist?: string;
+    album?: string;
+    duration: number;
+    hasCover: boolean;
+    addedAt: string;
+};
+
+export type UpdateSongDto = {
+    title: string;
+    artist?: string;
+    album?: string;
+};
+
+export type PlaylistEntryDto = {
+    id: string;
+    songId: string;
+    position: number;
+};
+
+export type PlaylistDto = {
+    id: string;
+    ownerId: string;
+    name: string;
+    entries: Array<PlaylistEntryDto>;
+    trackCount: number;
+};
+
+export type CreatePlaylistDto = {
+    name: string;
+};
+
+export type RenamePlaylistDto = {
+    name: string;
+};
+
+export type AddEntryDto = {
+    songId: string;
+};
+
+export type ReorderEntriesDto = {
+    entryIds: Array<string>;
+};
+
+export type AuthControllerRegisterData = {
+    body: CredentialsDto;
+    path?: never;
+    query?: never;
+    url: '/auth/register';
+};
+
+export type AuthControllerRegisterResponses = {
+    201: UserDto;
+};
+
+export type AuthControllerRegisterResponse = AuthControllerRegisterResponses[keyof AuthControllerRegisterResponses];
+
+export type AuthControllerSignInData = {
+    body: CredentialsDto;
+    path?: never;
+    query?: never;
+    url: '/auth/sign-in';
+};
+
+export type AuthControllerSignInResponses = {
+    200: SessionDto;
+};
+
+export type AuthControllerSignInResponse = AuthControllerSignInResponses[keyof AuthControllerSignInResponses];
+
+export type AuthControllerSignOutData = {
+    body?: never;
+    headers: {
+        authorization: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/auth/sign-out';
+};
+
+export type AuthControllerSignOutResponses = {
+    204: void;
+};
+
+export type AuthControllerSignOutResponse = AuthControllerSignOutResponses[keyof AuthControllerSignOutResponses];
+
+export type AuthControllerMeData = {
+    body?: never;
+    headers: {
+        authorization: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/auth/me';
+};
+
+export type AuthControllerMeResponses = {
+    200: UserDto;
+};
+
+export type AuthControllerMeResponse = AuthControllerMeResponses[keyof AuthControllerMeResponses];
+
+export type SongsControllerListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        sort?: string;
+    };
+    url: '/songs';
+};
+
+export type SongsControllerListResponses = {
+    200: Array<SongDto>;
+};
+
+export type SongsControllerListResponse = SongsControllerListResponses[keyof SongsControllerListResponses];
+
+export type SongsControllerUploadData = {
+    body: {
+        file: Blob | File;
+    };
+    path?: never;
+    query?: never;
+    url: '/songs';
+};
+
+export type SongsControllerUploadResponses = {
+    201: SongDto;
+};
+
+export type SongsControllerUploadResponse = SongsControllerUploadResponses[keyof SongsControllerUploadResponses];
+
+export type SongsControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/songs/{id}';
+};
+
+export type SongsControllerRemoveResponses = {
+    204: void;
+};
+
+export type SongsControllerRemoveResponse = SongsControllerRemoveResponses[keyof SongsControllerRemoveResponses];
+
+export type SongsControllerGetData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/songs/{id}';
+};
+
+export type SongsControllerGetResponses = {
+    200: SongDto;
+};
+
+export type SongsControllerGetResponse = SongsControllerGetResponses[keyof SongsControllerGetResponses];
+
+export type SongsControllerRetagData = {
+    body: UpdateSongDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/songs/{id}';
+};
+
+export type SongsControllerRetagResponses = {
+    200: SongDto;
+};
+
+export type SongsControllerRetagResponse = SongsControllerRetagResponses[keyof SongsControllerRetagResponses];
+
+export type SongsControllerAudioData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/songs/{id}/audio';
+};
+
+export type SongsControllerAudioResponses = {
+    /**
+     * Full (200) or partial (206) audio stream
+     */
+    200: Blob | File;
+};
+
+export type SongsControllerAudioResponse = SongsControllerAudioResponses[keyof SongsControllerAudioResponses];
+
+export type SongsControllerCoverData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/songs/{id}/cover';
+};
+
+export type SongsControllerCoverResponses = {
+    /**
+     * Cover image bytes
+     */
+    200: Blob | File;
+};
+
+export type SongsControllerCoverResponse = SongsControllerCoverResponses[keyof SongsControllerCoverResponses];
+
+export type PlaylistsControllerListData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/user';
+    url: '/playlists';
 };
 
-export type UsersControllerGetUserResponses = {
-    200: UserDto;
+export type PlaylistsControllerListResponses = {
+    200: Array<PlaylistDto>;
 };
 
-export type UsersControllerGetUserResponse = UsersControllerGetUserResponses[keyof UsersControllerGetUserResponses];
+export type PlaylistsControllerListResponse = PlaylistsControllerListResponses[keyof PlaylistsControllerListResponses];
 
-export type UsersControllerReplaceUserData = {
-    body: UpdateUserDto;
+export type PlaylistsControllerCreateData = {
+    body: CreatePlaylistDto;
     path?: never;
     query?: never;
-    url: '/user';
+    url: '/playlists';
 };
 
-export type UsersControllerReplaceUserResponses = {
-    200: UserDto;
+export type PlaylistsControllerCreateResponses = {
+    201: PlaylistDto;
 };
 
-export type UsersControllerReplaceUserResponse = UsersControllerReplaceUserResponses[keyof UsersControllerReplaceUserResponses];
+export type PlaylistsControllerCreateResponse = PlaylistsControllerCreateResponses[keyof PlaylistsControllerCreateResponses];
+
+export type PlaylistsControllerRemoveData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/playlists/{id}';
+};
+
+export type PlaylistsControllerRemoveResponses = {
+    204: void;
+};
+
+export type PlaylistsControllerRemoveResponse = PlaylistsControllerRemoveResponses[keyof PlaylistsControllerRemoveResponses];
+
+export type PlaylistsControllerGetData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/playlists/{id}';
+};
+
+export type PlaylistsControllerGetResponses = {
+    200: PlaylistDto;
+};
+
+export type PlaylistsControllerGetResponse = PlaylistsControllerGetResponses[keyof PlaylistsControllerGetResponses];
+
+export type PlaylistsControllerRenameData = {
+    body: RenamePlaylistDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/playlists/{id}';
+};
+
+export type PlaylistsControllerRenameResponses = {
+    200: PlaylistDto;
+};
+
+export type PlaylistsControllerRenameResponse = PlaylistsControllerRenameResponses[keyof PlaylistsControllerRenameResponses];
+
+export type PlaylistsControllerAddEntryData = {
+    body: AddEntryDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/playlists/{id}/entries';
+};
+
+export type PlaylistsControllerAddEntryResponses = {
+    201: PlaylistDto;
+};
+
+export type PlaylistsControllerAddEntryResponse = PlaylistsControllerAddEntryResponses[keyof PlaylistsControllerAddEntryResponses];
+
+export type PlaylistsControllerReorderData = {
+    body: ReorderEntriesDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/playlists/{id}/entries';
+};
+
+export type PlaylistsControllerReorderResponses = {
+    200: PlaylistDto;
+};
+
+export type PlaylistsControllerReorderResponse = PlaylistsControllerReorderResponses[keyof PlaylistsControllerReorderResponses];
+
+export type PlaylistsControllerRemoveEntryData = {
+    body?: never;
+    path: {
+        id: string;
+        entryId: string;
+    };
+    query?: never;
+    url: '/playlists/{id}/entries/{entryId}';
+};
+
+export type PlaylistsControllerRemoveEntryResponses = {
+    204: void;
+};
+
+export type PlaylistsControllerRemoveEntryResponse = PlaylistsControllerRemoveEntryResponses[keyof PlaylistsControllerRemoveEntryResponses];

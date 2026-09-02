@@ -3,8 +3,50 @@
 import { type DefaultError, type MutationOptions, queryOptions } from '@tanstack/angular-query-experimental';
 
 import { client } from '../client.gen';
-import { type Options, usersControllerGetUser, usersControllerReplaceUser } from '../sdk.gen';
-import type { UsersControllerGetUserData, UsersControllerGetUserResponse, UsersControllerReplaceUserData, UsersControllerReplaceUserResponse } from '../types.gen';
+import { authControllerMe, authControllerRegister, authControllerSignIn, authControllerSignOut, type Options, playlistsControllerAddEntry, playlistsControllerCreate, playlistsControllerGet, playlistsControllerList, playlistsControllerRemove, playlistsControllerRemoveEntry, playlistsControllerRename, playlistsControllerReorder, songsControllerAudio, songsControllerCover, songsControllerGet, songsControllerList, songsControllerRemove, songsControllerRetag, songsControllerUpload } from '../sdk.gen';
+import type { AuthControllerMeData, AuthControllerMeResponse, AuthControllerRegisterData, AuthControllerRegisterResponse, AuthControllerSignInData, AuthControllerSignInResponse, AuthControllerSignOutData, AuthControllerSignOutResponse, PlaylistsControllerAddEntryData, PlaylistsControllerAddEntryResponse, PlaylistsControllerCreateData, PlaylistsControllerCreateResponse, PlaylistsControllerGetData, PlaylistsControllerGetResponse, PlaylistsControllerListData, PlaylistsControllerListResponse, PlaylistsControllerRemoveData, PlaylistsControllerRemoveEntryData, PlaylistsControllerRemoveEntryResponse, PlaylistsControllerRemoveResponse, PlaylistsControllerRenameData, PlaylistsControllerRenameResponse, PlaylistsControllerReorderData, PlaylistsControllerReorderResponse, SongsControllerAudioData, SongsControllerAudioResponse, SongsControllerCoverData, SongsControllerCoverResponse, SongsControllerGetData, SongsControllerGetResponse, SongsControllerListData, SongsControllerListResponse, SongsControllerRemoveData, SongsControllerRemoveResponse, SongsControllerRetagData, SongsControllerRetagResponse, SongsControllerUploadData, SongsControllerUploadResponse } from '../types.gen';
+
+export const authControllerRegisterMutation = (options?: Partial<Options<AuthControllerRegisterData>>): MutationOptions<AuthControllerRegisterResponse, DefaultError, Options<AuthControllerRegisterData>> => {
+    const mutationOptions: MutationOptions<AuthControllerRegisterResponse, DefaultError, Options<AuthControllerRegisterData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await authControllerRegister({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const authControllerSignInMutation = (options?: Partial<Options<AuthControllerSignInData>>): MutationOptions<AuthControllerSignInResponse, DefaultError, Options<AuthControllerSignInData>> => {
+    const mutationOptions: MutationOptions<AuthControllerSignInResponse, DefaultError, Options<AuthControllerSignInData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await authControllerSignIn({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const authControllerSignOutMutation = (options?: Partial<Options<AuthControllerSignOutData>>): MutationOptions<AuthControllerSignOutResponse, DefaultError, Options<AuthControllerSignOutData>> => {
+    const mutationOptions: MutationOptions<AuthControllerSignOutResponse, DefaultError, Options<AuthControllerSignOutData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await authControllerSignOut({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -39,14 +81,11 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
     return [params];
 };
 
-export const usersControllerGetUserQueryKey = (options?: Options<UsersControllerGetUserData>) => createQueryKey('usersControllerGetUser', options);
+export const authControllerMeQueryKey = (options: Options<AuthControllerMeData>) => createQueryKey('authControllerMe', options);
 
-/**
- * The current user.
- */
-export const usersControllerGetUserOptions = (options?: Options<UsersControllerGetUserData>) => queryOptions<UsersControllerGetUserResponse, DefaultError, UsersControllerGetUserResponse, ReturnType<typeof usersControllerGetUserQueryKey>>({
+export const authControllerMeOptions = (options: Options<AuthControllerMeData>) => queryOptions<AuthControllerMeResponse, DefaultError, AuthControllerMeResponse, ReturnType<typeof authControllerMeQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-        const { data } = await usersControllerGetUser({
+        const { data } = await authControllerMe({
             ...options,
             ...queryKey[0],
             signal,
@@ -54,16 +93,224 @@ export const usersControllerGetUserOptions = (options?: Options<UsersControllerG
         });
         return data;
     },
-    queryKey: usersControllerGetUserQueryKey(options)
+    queryKey: authControllerMeQueryKey(options)
+});
+
+export const songsControllerListQueryKey = (options?: Options<SongsControllerListData>) => createQueryKey('songsControllerList', options);
+
+export const songsControllerListOptions = (options?: Options<SongsControllerListData>) => queryOptions<SongsControllerListResponse, DefaultError, SongsControllerListResponse, ReturnType<typeof songsControllerListQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await songsControllerList({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: songsControllerListQueryKey(options)
 });
 
 /**
- * Replace the current user and return the stored record.
+ * Upload an .mp3. Metadata comes from the file's ID3 tags; edit later via PATCH.
  */
-export const usersControllerReplaceUserMutation = (options?: Partial<Options<UsersControllerReplaceUserData>>): MutationOptions<UsersControllerReplaceUserResponse, DefaultError, Options<UsersControllerReplaceUserData>> => {
-    const mutationOptions: MutationOptions<UsersControllerReplaceUserResponse, DefaultError, Options<UsersControllerReplaceUserData>> = {
+export const songsControllerUploadMutation = (options?: Partial<Options<SongsControllerUploadData>>): MutationOptions<SongsControllerUploadResponse, DefaultError, Options<SongsControllerUploadData>> => {
+    const mutationOptions: MutationOptions<SongsControllerUploadResponse, DefaultError, Options<SongsControllerUploadData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await usersControllerReplaceUser({
+            const { data } = await songsControllerUpload({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const songsControllerRemoveMutation = (options?: Partial<Options<SongsControllerRemoveData>>): MutationOptions<SongsControllerRemoveResponse, DefaultError, Options<SongsControllerRemoveData>> => {
+    const mutationOptions: MutationOptions<SongsControllerRemoveResponse, DefaultError, Options<SongsControllerRemoveData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await songsControllerRemove({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const songsControllerGetQueryKey = (options: Options<SongsControllerGetData>) => createQueryKey('songsControllerGet', options);
+
+export const songsControllerGetOptions = (options: Options<SongsControllerGetData>) => queryOptions<SongsControllerGetResponse, DefaultError, SongsControllerGetResponse, ReturnType<typeof songsControllerGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await songsControllerGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: songsControllerGetQueryKey(options)
+});
+
+export const songsControllerRetagMutation = (options?: Partial<Options<SongsControllerRetagData>>): MutationOptions<SongsControllerRetagResponse, DefaultError, Options<SongsControllerRetagData>> => {
+    const mutationOptions: MutationOptions<SongsControllerRetagResponse, DefaultError, Options<SongsControllerRetagData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await songsControllerRetag({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const songsControllerAudioQueryKey = (options: Options<SongsControllerAudioData>) => createQueryKey('songsControllerAudio', options);
+
+/**
+ * Audio bytes with HTTP Range support — `206` when a range is asked for (SNG-2, PB-1).
+ */
+export const songsControllerAudioOptions = (options: Options<SongsControllerAudioData>) => queryOptions<SongsControllerAudioResponse, DefaultError, SongsControllerAudioResponse, ReturnType<typeof songsControllerAudioQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await songsControllerAudio({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: songsControllerAudioQueryKey(options)
+});
+
+export const songsControllerCoverQueryKey = (options: Options<SongsControllerCoverData>) => createQueryKey('songsControllerCover', options);
+
+/**
+ * Cover image. Small and immutable for a given song, so cache it hard.
+ */
+export const songsControllerCoverOptions = (options: Options<SongsControllerCoverData>) => queryOptions<SongsControllerCoverResponse, DefaultError, SongsControllerCoverResponse, ReturnType<typeof songsControllerCoverQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await songsControllerCover({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: songsControllerCoverQueryKey(options)
+});
+
+export const playlistsControllerListQueryKey = (options?: Options<PlaylistsControllerListData>) => createQueryKey('playlistsControllerList', options);
+
+export const playlistsControllerListOptions = (options?: Options<PlaylistsControllerListData>) => queryOptions<PlaylistsControllerListResponse, DefaultError, PlaylistsControllerListResponse, ReturnType<typeof playlistsControllerListQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await playlistsControllerList({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: playlistsControllerListQueryKey(options)
+});
+
+export const playlistsControllerCreateMutation = (options?: Partial<Options<PlaylistsControllerCreateData>>): MutationOptions<PlaylistsControllerCreateResponse, DefaultError, Options<PlaylistsControllerCreateData>> => {
+    const mutationOptions: MutationOptions<PlaylistsControllerCreateResponse, DefaultError, Options<PlaylistsControllerCreateData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await playlistsControllerCreate({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const playlistsControllerRemoveMutation = (options?: Partial<Options<PlaylistsControllerRemoveData>>): MutationOptions<PlaylistsControllerRemoveResponse, DefaultError, Options<PlaylistsControllerRemoveData>> => {
+    const mutationOptions: MutationOptions<PlaylistsControllerRemoveResponse, DefaultError, Options<PlaylistsControllerRemoveData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await playlistsControllerRemove({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const playlistsControllerGetQueryKey = (options: Options<PlaylistsControllerGetData>) => createQueryKey('playlistsControllerGet', options);
+
+export const playlistsControllerGetOptions = (options: Options<PlaylistsControllerGetData>) => queryOptions<PlaylistsControllerGetResponse, DefaultError, PlaylistsControllerGetResponse, ReturnType<typeof playlistsControllerGetQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await playlistsControllerGet({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: playlistsControllerGetQueryKey(options)
+});
+
+export const playlistsControllerRenameMutation = (options?: Partial<Options<PlaylistsControllerRenameData>>): MutationOptions<PlaylistsControllerRenameResponse, DefaultError, Options<PlaylistsControllerRenameData>> => {
+    const mutationOptions: MutationOptions<PlaylistsControllerRenameResponse, DefaultError, Options<PlaylistsControllerRenameData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await playlistsControllerRename({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const playlistsControllerAddEntryMutation = (options?: Partial<Options<PlaylistsControllerAddEntryData>>): MutationOptions<PlaylistsControllerAddEntryResponse, DefaultError, Options<PlaylistsControllerAddEntryData>> => {
+    const mutationOptions: MutationOptions<PlaylistsControllerAddEntryResponse, DefaultError, Options<PlaylistsControllerAddEntryData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await playlistsControllerAddEntry({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const playlistsControllerReorderMutation = (options?: Partial<Options<PlaylistsControllerReorderData>>): MutationOptions<PlaylistsControllerReorderResponse, DefaultError, Options<PlaylistsControllerReorderData>> => {
+    const mutationOptions: MutationOptions<PlaylistsControllerReorderResponse, DefaultError, Options<PlaylistsControllerReorderData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await playlistsControllerReorder({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const playlistsControllerRemoveEntryMutation = (options?: Partial<Options<PlaylistsControllerRemoveEntryData>>): MutationOptions<PlaylistsControllerRemoveEntryResponse, DefaultError, Options<PlaylistsControllerRemoveEntryData>> => {
+    const mutationOptions: MutationOptions<PlaylistsControllerRemoveEntryResponse, DefaultError, Options<PlaylistsControllerRemoveEntryData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await playlistsControllerRemoveEntry({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
