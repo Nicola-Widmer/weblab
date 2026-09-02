@@ -20,7 +20,8 @@
   [Composition root], [The single place where the object graph is assembled and
    concrete adapters are chosen (`container.ts`).],
   [Domain event], [A record that something significant happened in the domain
-   (e.g. `SongDeleted`), used to decouple contexts.],
+   (e.g. `SongDeleted`), published on the in-process bus and handled by other
+   contexts asynchronously, fire-and-forget.],
   [ADR], [Architecture Decision Record — a short, immutable document capturing
    one decision, its context and consequences.],
   [arc42], [A template for architecture documentation, 12 sections; this

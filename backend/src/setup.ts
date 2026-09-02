@@ -20,7 +20,8 @@ export function buildOpenApiDocument(app: INestApplication) {
     .setVersion('0.1.0')
     .addServer('/api')
     .build();
-  // Paths stay `/user` (not `/api/user`); the `/api` prefix lives in the server
-  // URL so the generated frontend client's paths line up with its `/api` baseUrl.
+  // Paths stay bare (e.g. `/songs`, not `/api/songs`); the `/api` prefix lives in
+  // the server URL so the generated frontend client's paths line up with its
+  // `/api` baseUrl.
   return SwaggerModule.createDocument(app, config, { ignoreGlobalPrefix: true });
 }

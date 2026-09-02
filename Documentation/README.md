@@ -3,6 +3,7 @@
 | File | Purpose |
 | --- | --- |
 | `Proposal.typ` | Project proposal, user stories, MoSCoW scope. **What** is built. |
+| `domain-model.typ` | The backend domain model: bounded contexts, aggregates, value objects, invariants, ports, the one cross-context event. Standalone (compile directly). Diagrams authored in Mermaid. |
 | `arc42/architecture.typ` | Entry point for the arc42 doc (v8): preamble, title page, outline, `#include`s of each section. Compile **this**. |
 | `arc42/sections/NN-*.typ` | One file per arc42 section (1–12). Pure content fragments. |
 | `arc42/lib.typ` | Shared Typst helpers used by the section files. |

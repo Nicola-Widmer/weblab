@@ -13,7 +13,6 @@ export default defineConfig({
   output: {
     path: 'src/app/api',
   },
-  postProcess: ['prettier'],
   plugins: [
     {
       name: '@hey-api/client-fetch',

@@ -20,8 +20,9 @@ back here.
   [Single repository, single deployable monolith (`backend/` + `frontend/` +
    root Compose).], [Accepted],
   [#adrlink("0002-ddd-hexagonal-backend")],
-  [DDD tactical patterns with hexagonal layering; one module per bounded
-   context; in-process domain-event bus.], [Accepted],
+  [DDD tactical patterns with hexagonal layering; one feature-folder module per
+   bounded context; asynchronous fire-and-forget in-process domain-event bus.],
+  [Accepted],
   [#adrlink("0003-nginx-serves-frontend")],
   [A dedicated nginx container serves the SPA and reverse-proxies `/api`,
    rather than serving static files from Express.], [Accepted],

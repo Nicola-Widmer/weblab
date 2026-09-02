@@ -1,40 +1,104 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/user": {
-      "get": {
-        "operationId": "UsersController_getUser",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserDto"
-                }
-              }
-            }
-          }
-        },
-        "summary": "The current user.",
-        "tags": [
-          "Users"
-        ]
-      },
-      "put": {
-        "operationId": "UsersController_replaceUser",
+    "/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateUserDto"
+                "$ref": "#/components/schemas/CredentialsDto"
               }
             }
           }
         },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "operationId": "AuthController_signIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/sign-out": {
+      "post": {
+        "operationId": "AuthController_signOut",
+        "parameters": [
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [
+          {
+            "name": "authorization",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -47,9 +111,381 @@
             }
           }
         },
-        "summary": "Replace the current user and return the stored record.",
         "tags": [
-          "Users"
+          "Auth"
+        ]
+      }
+    },
+    "/songs": {
+      "get": {
+        "operationId": "SongsController_list",
+        "parameters": [
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SongDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Songs"
+        ]
+      }
+    },
+    "/songs/{id}": {
+      "get": {
+        "operationId": "SongsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Songs"
+        ]
+      },
+      "patch": {
+        "operationId": "SongsController_retag",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSongDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Songs"
+        ]
+      },
+      "delete": {
+        "operationId": "SongsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Songs"
+        ]
+      }
+    },
+    "/playlists": {
+      "get": {
+        "operationId": "PlaylistsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaylistDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Playlists"
+        ]
+      },
+      "post": {
+        "operationId": "PlaylistsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlaylistDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Playlists"
+        ]
+      }
+    },
+    "/playlists/{id}": {
+      "get": {
+        "operationId": "PlaylistsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Playlists"
+        ]
+      },
+      "patch": {
+        "operationId": "PlaylistsController_rename",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenamePlaylistDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Playlists"
+        ]
+      },
+      "delete": {
+        "operationId": "PlaylistsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Playlists"
+        ]
+      }
+    },
+    "/playlists/{id}/entries": {
+      "post": {
+        "operationId": "PlaylistsController_addEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEntryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Playlists"
+        ]
+      },
+      "put": {
+        "operationId": "PlaylistsController_reorder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderEntriesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Playlists"
+        ]
+      }
+    },
+    "/playlists/{id}/entries/{entryId}": {
+      "delete": {
+        "operationId": "PlaylistsController_removeEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Playlists"
         ]
       }
     }
@@ -68,41 +504,208 @@
   ],
   "components": {
     "schemas": {
+      "CredentialsDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
       "UserDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "name": {
-            "type": "string"
-          },
           "email": {
             "type": "string",
             "format": "email"
+          },
+          "createdAt": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "name",
-          "email"
+          "email",
+          "createdAt"
         ]
       },
-      "UpdateUserDto": {
+      "SessionDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "SongDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "album": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "hasCover": {
+            "type": "boolean"
+          },
+          "addedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ownerId",
+          "title",
+          "duration",
+          "hasCover",
+          "addedAt"
+        ]
+      },
+      "UpdateSongDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "artist": {
+            "type": "string"
+          },
+          "album": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "PlaylistEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "songId": {
+            "type": "string"
+          },
+          "position": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "songId",
+          "position"
+        ]
+      },
+      "PlaylistDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlaylistEntryDto"
+            }
+          },
+          "trackCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "ownerId",
+          "name",
+          "entries",
+          "trackCount"
+        ]
+      },
+      "CreatePlaylistDto": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string",
             "minLength": 1
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
           }
         },
         "required": [
-          "name",
-          "email"
+          "name"
+        ]
+      },
+      "RenamePlaylistDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "AddEntryDto": {
+        "type": "object",
+        "properties": {
+          "songId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "songId"
+        ]
+      },
+      "ReorderEntriesDto": {
+        "type": "object",
+        "properties": {
+          "entryIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "entryIds"
         ]
       }
     }
