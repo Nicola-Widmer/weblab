@@ -47,10 +47,10 @@ The two self-defined CRUD resources are *Songs* and *Playlists*.
 #table(columns: (auto, 1fr), inset: 6pt, align: (left + horizon, left + horizon),
   stroke: 0.4pt + rgb("#cccccc"),
   table.header([*Concern*], [*Choice*]),
-  [Frontend], [Angular],
-  [Backend], [NestJS (REST)],
+  [Frontend], [Angular, Tailwind CSS, TypeScript, HeyApi],
+  [Backend], [NestJS (REST), Drizzle],
   [Database], [PostgreSQL — song/playlist metadata],
-  [Audio storage], [Server filesystem (mounted volume); DB holds the path],
+  [Audio storage], [Server filesystem (mounted volume); DB holds the path, optionally S3-compatible object storage (MinIO, AWS S3, ...)],
   [Tests], [Jest (unit), Supertest + real PostgreSQL (integration), Playwright (E2E)],
   [Packaging], [Docker Compose — `docker compose up`],
 )
