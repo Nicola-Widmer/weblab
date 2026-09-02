@@ -11,7 +11,6 @@ import { Uuid } from '../../shared/domain/uuid';
 import { AudioRef } from '../domain/audio-ref';
 import { CoverArtRef } from '../domain/cover-art-ref';
 import { Song } from '../domain/song';
-import { AudioProbe } from './audio-probe';
 import { FileStorage, type ByteRange, type RangeResult } from './file-storage';
 import { Id3Reader } from './id3-reader';
 import { SongRepository, type SongSort } from './song-repository';
@@ -34,7 +33,6 @@ export class SongsService {
     private readonly songs: SongRepository,
     private readonly files: FileStorage,
     private readonly id3: Id3Reader,
-    private readonly probe: AudioProbe,
     private readonly ids: IdGenerator,
     private readonly clock: Clock,
     private readonly events: EventBus,
@@ -59,8 +57,11 @@ export class SongsService {
     }
 
     const tags = await this.id3.read(file.bytes);
-    const duration =
-      tags.durationSeconds ?? (await this.probe.durationSeconds(file.bytes));
+    if (tags.durationSeconds === undefined) {
+      throw new BadRequestException(
+        'Could not read the audio — is this a valid MP3?',
+      );
+    }
 
     const audioKey = this.ids.next();
     await this.files.put(audioKey, file.bytes, 'audio/mpeg');
@@ -68,9 +69,10 @@ export class SongsService {
 
     let cover: CoverArtRef | undefined;
     if (tags.coverBytes) {
+      const coverType = tags.coverMimeType ?? 'image/jpeg';
       const coverKey = this.ids.next();
-      await this.files.put(coverKey, tags.coverBytes, 'image/jpeg');
-      cover = new CoverArtRef(coverKey, 'image/jpeg', tags.coverBytes.length);
+      await this.files.put(coverKey, tags.coverBytes, coverType);
+      cover = new CoverArtRef(coverKey, coverType, tags.coverBytes.length);
     }
 
     const song = Song.upload({
@@ -78,7 +80,7 @@ export class SongsService {
       ownerId,
       filename: file.filename,
       id3: tags,
-      durationSeconds: duration,
+      durationSeconds: tags.durationSeconds,
       audio,
       cover,
       now: this.clock.now(),

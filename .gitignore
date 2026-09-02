@@ -1,5 +1,8 @@
 # Root-level only. backend/ and frontend/ have their own .gitignore.
 
+# Root task-runner deps (mprocs); the real projects install under backend/ frontend/
+/node_modules/
+
 # Local environment (Compose auto-loads this; .env.example is committed)
 /.env
 /.env.local

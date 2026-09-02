@@ -1,4 +1,8 @@
 import 'reflect-metadata';
+// Load backend/.env before anything reads process.env (some modules do so at
+// import time). No-ops when the file is absent — e.g. in the container, where
+// Compose provides the vars. Real env vars (mprocs, Compose) always win.
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';

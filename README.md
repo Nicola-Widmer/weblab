@@ -45,16 +45,31 @@ docker compose --profile storage-s3 up
 
 Copy [`.env.example`](.env.example) to `.env` to override any default.
 
-## Run it — native dev
+## Run it — native dev (hot reload)
 
-Two independent projects, each with its own pnpm lockfile. Node 24
-([`.nvmrc`](backend/.nvmrc)).
+One command brings up Postgres + the API (`nest start --watch`) + the SPA
+(`ng serve`) in a split view, via [`mprocs`](https://github.com/pvolok/mprocs)
+([`mprocs.yaml`](mprocs.yaml)). Node 24 ([`.nvmrc`](backend/.nvmrc)); Docker for
+the database.
 
 ```bash
-# terminal 1 — API (needs a local Postgres; set DATABASE_URL in .env)
-cd backend && pnpm install && pnpm dev
+pnpm install        # root: installs mprocs
+pnpm run setup      # installs backend/ and frontend/ deps
+pnpm dev            # db + api + web
+```
 
-# terminal 2 — SPA (proxies /api to :3000)
+- SPA on **http://localhost:4200** (proxies `/api` → `:3000`).
+- [`docker-compose.override.yml`](docker-compose.override.yml) publishes Postgres
+  on `127.0.0.1:5432`; the API points at it and runs migrations on boot.
+- Uploaded audio persists to `./uploads/` (`STORAGE_DRIVER=local`).
+- In the TUI: `↑/↓` pick a pane, `r` restart, `q` quit (stops all). On a cold
+  first run the API may error before Postgres is ready — press `r`.
+
+Or run the pieces yourself:
+
+```bash
+docker compose up db                     # or any local Postgres
+cd backend  && pnpm install && DATABASE_URL=postgres://wmp:wmp@localhost:5432/wmp pnpm dev
 cd frontend && pnpm install && pnpm start
 ```
 

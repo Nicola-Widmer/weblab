@@ -9,4 +9,6 @@ export interface Id3Tags {
   album?: string;
   durationSeconds?: number;
   coverBytes?: Buffer;
+  /** MIME type of `coverBytes` (e.g. `image/jpeg`, `image/png`). */
+  coverMimeType?: string;
 }
