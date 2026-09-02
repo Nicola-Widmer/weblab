@@ -147,6 +147,45 @@
         "tags": [
           "Songs"
         ]
+      },
+      "post": {
+        "operationId": "SongsController_upload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SongDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Upload an .mp3. Metadata comes from the file's ID3 tags; edit later via PATCH.",
+        "tags": [
+          "Songs"
+        ]
       }
     },
     "/songs/{id}": {
@@ -233,6 +272,76 @@
             "description": ""
           }
         },
+        "tags": [
+          "Songs"
+        ]
+      }
+    },
+    "/songs/{id}/audio": {
+      "get": {
+        "operationId": "SongsController_audio",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full (200) or partial (206) audio stream",
+            "content": {
+              "audio/mpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Audio bytes with HTTP Range support — `206` when a range is asked for (SNG-2, PB-1).",
+        "tags": [
+          "Songs"
+        ]
+      }
+    },
+    "/songs/{id}/cover": {
+      "get": {
+        "operationId": "SongsController_cover",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cover image bytes",
+            "content": {
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Cover image. Small and immutable for a given song, so cache it hard.",
         "tags": [
           "Songs"
         ]

@@ -16,13 +16,16 @@ import { FileStorage, type ByteRange, type RangeResult } from './file-storage';
 import { Id3Reader } from './id3-reader';
 import { SongRepository, type SongSort } from './song-repository';
 
-const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 export interface UploadedFile {
   filename: string;
   mimeType: string;
   bytes: Buffer;
 }
+
+/** A byte stream from `FileStorage` plus the MIME type the HTTP edge serves it as. */
+export type StreamedFile = RangeResult & { contentType: string };
 
 /** Use cases of the `songs` context, including the range-streaming edge. */
 @Injectable()
@@ -113,14 +116,16 @@ export class SongsService {
     ownerId: Uuid,
     id: Uuid,
     range?: ByteRange,
-  ): Promise<RangeResult> {
+  ): Promise<StreamedFile> {
     const song = await this.get(ownerId, id);
-    return this.files.getRange(song.audio.storageKey, range);
+    const bytes = await this.files.getRange(song.audio.storageKey, range);
+    return { ...bytes, contentType: song.audio.contentType };
   }
 
-  async getCover(ownerId: Uuid, id: Uuid): Promise<RangeResult> {
+  async getCover(ownerId: Uuid, id: Uuid): Promise<StreamedFile> {
     const song = await this.get(ownerId, id);
     if (!song.coverArt) throw new NotFoundException('Song has no cover');
-    return this.files.getRange(song.coverArt.storageKey);
+    const bytes = await this.files.getRange(song.coverArt.storageKey);
+    return { ...bytes, contentType: song.coverArt.contentType };
   }
 }
