@@ -35,9 +35,9 @@ import { PlayerVolumeComponent } from './player-volume.component';
       (visibleChange)="visible.set($event)"
     >
       <div
-        class="mx-auto flex h-full max-w-sm flex-col items-center justify-center gap-8 px-6 pb-10"
+        class="mx-auto flex h-full max-w-sm flex-col items-center justify-center gap-8 px-8 pb-10"
       >
-        <div class="relative w-full max-w-64">
+        <div class="relative w-full max-w-56">
           <app-player-turntable class="block" [song]="song" [playing]="player.playing()" />
           <app-player-scrubber-arc
             class="absolute inset-0 text-surface-900 dark:text-surface-0"

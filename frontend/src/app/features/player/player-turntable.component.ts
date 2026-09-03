@@ -79,7 +79,7 @@ const linear = (t: number): number => t;
       ></div>
 
       <svg
-        class="tonearm pointer-events-none absolute right-[2%] top-[1%] z-30 w-[54%] overflow-visible drop-shadow-[0_3px_5px_rgba(0,0,0,0.35)]"
+        class="tonearm pointer-events-none absolute right-[6%] top-[5%] z-30 w-[54%] overflow-visible drop-shadow-[0_3px_5px_rgba(0,0,0,0.35)]"
         viewBox="0 0 100 100"
         fill="none"
         aria-hidden="true"
@@ -144,8 +144,12 @@ export class PlayerTurntableComponent {
 
   protected readonly coverUrl = songCoverUrl;
   protected readonly ready = signal(false);
-  /** Parked well off the disc; swung down onto the outer groove when engaged. */
-  protected readonly armTransform = computed(() => `rotate(${this.armEngaged() ? 5 : 35}deg)`);
+  /**
+   * Swung right off the disc when idle, down onto the outer groove when engaged.
+   * The idle angle reads as clearly "parked"; the arm's swing stays inside the
+   * square stage, well clear of the drawer's clipped rounded corners.
+   */
+  protected readonly armTransform = computed(() => `rotate(${this.armEngaged() ? 5 : 40}deg)`);
 
   private readonly armEngaged = signal(false);
 

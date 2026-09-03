@@ -9,7 +9,9 @@ import {
 import { SelectButton } from '@openng/optimus-ui/selectbutton';
 import type { SongDto } from '../../api';
 import {
+  playlistsControllerAddEntryMutation,
   playlistsControllerListOptions,
+  playlistsControllerListQueryKey,
   songsControllerListOptions,
   songsControllerListQueryKey,
   songsControllerRemoveMutation,
@@ -60,9 +62,11 @@ type LibraryView = 'songs' | 'playlists';
           [songs]="songs.data() ?? []"
           [isPending]="songs.isPending()"
           [isError]="songs.isError()"
+          [playlists]="playlists.data() ?? []"
           (play)="play($event)"
           (edit)="editing.set($event)"
           (delete)="remove($event)"
+          (addToPlaylist)="addToPlaylist($event)"
         />
       </app-song-upload>
       @if (removal.isError()) {
@@ -97,10 +101,9 @@ export class SongsPageComponent {
   protected readonly editing = signal<SongDto | null>(null);
 
   protected readonly songs = injectQuery(() => songsControllerListOptions());
-  protected readonly playlists = injectQuery(() => ({
-    ...playlistsControllerListOptions(),
-    enabled: this.view() === 'playlists',
-  }));
+  // Always fetched: the playlist grid and every song row's "Add to Playlist"
+  // submenu both read this.
+  protected readonly playlists = injectQuery(() => playlistsControllerListOptions());
   protected readonly removal = injectMutation(() => ({
     ...songsControllerRemoveMutation(),
     onSuccess: () =>
@@ -108,9 +111,20 @@ export class SongsPageComponent {
         queryKey: songsControllerListQueryKey(),
       }),
   }));
+  protected readonly addEntry = injectMutation(() => ({
+    ...playlistsControllerAddEntryMutation(),
+    onSuccess: () =>
+      this.queryClient.invalidateQueries({
+        queryKey: playlistsControllerListQueryKey(),
+      }),
+  }));
 
   play(song: SongDto): void {
     this.player.play(song, this.songs.data() ?? [song]);
+  }
+
+  addToPlaylist({ song, playlistId }: { song: SongDto; playlistId: string }): void {
+    this.addEntry.mutate({ path: { id: playlistId }, body: { songId: song.id } });
   }
 
   remove(song: SongDto): void {

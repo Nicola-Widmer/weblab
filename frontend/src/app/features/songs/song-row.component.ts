@@ -1,32 +1,21 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { TranslatePipe, translate } from '@ngx-translate/core';
-import { LucideEllipsis, LucidePencil, LucidePlay, LucideTrash2 } from '@lucide/angular';
-import { Button } from '@openng/optimus-ui/button';
-import { Menu } from '@openng/optimus-ui/menu';
-import type { MenuItem } from '@openng/optimus-ui/api';
-import type { SongDto } from '../../api';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
+import type { PlaylistDto, SongDto } from '../../api';
 import { songCoverUrl } from '../../shared/song-asset-urls';
+import { SongMenuComponent } from './song-menu.component';
 
 /**
  * One row of the song list: a cover pane, then the columns that line up with the
  * list header (title | artist | album | time | ⋯ menu). The separator sits on
  * the inner grid so it starts at the title, not under the cover. Presentational
- * — reports intent through `play` / `delete`.
+ * — reports intent through `play` / `edit` / `delete` / `addToPlaylist`, the
+ * last three just forwarded from `app-song-menu`.
  */
 @Component({
   selector: 'app-song-row',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    DatePipe,
-    Button,
-    Menu,
-    TranslatePipe,
-    LucideEllipsis,
-    LucidePencil,
-    LucidePlay,
-    LucideTrash2,
-  ],
+  imports: [DatePipe, TranslatePipe, SongMenuComponent],
   template: `
     @let s = song();
     <div class="grid grid-cols-[2.5rem_1fr] items-center gap-3 px-2">
@@ -51,35 +40,14 @@ import { songCoverUrl } from '../../shared/song-asset-urls';
           {{ s.duration * 1000 | date: 'm:ss' : 'UTC' }}
         </span>
         <div class="flex justify-end">
-          <p-button
-            type="button"
-            severity="secondary"
-            size="small"
-            [text]="true"
-            [rounded]="true"
-            [ariaLabel]="'songs.row.moreActions' | translate"
-            (onClick)="menu.toggle($event)"
-          >
-            <svg lucideEllipsis class="size-5"></svg>
-          </p-button>
-          <p-menu #menu [model]="items()" popup appendTo="body">
-            <ng-template #item let-item>
-              <span class="flex items-center gap-2 px-3 py-1.5 text-sm">
-                @switch (item.icon) {
-                  @case ('play') {
-                    <svg lucidePlay class="size-4"></svg>
-                  }
-                  @case ('edit') {
-                    <svg lucidePencil class="size-4"></svg>
-                  }
-                  @case ('trash') {
-                    <svg lucideTrash2 class="size-4"></svg>
-                  }
-                }
-                {{ item.label }}
-              </span>
-            </ng-template>
-          </p-menu>
+          <app-song-menu
+            [song]="s"
+            [playlists]="playlists()"
+            (play)="play.emit($event)"
+            (edit)="edit.emit($event)"
+            (delete)="delete.emit($event)"
+            (addToPlaylist)="addToPlaylist.emit($event)"
+          />
         </div>
       </div>
     </div>
@@ -89,30 +57,12 @@ export class SongRowComponent {
   readonly song = input.required<SongDto>();
   /** First row draws no separator. */
   readonly firstRow = input(false);
+  /** Playlists offered in the row's "Add to Playlist" submenu. */
+  readonly playlists = input<PlaylistDto[]>([]);
   readonly play = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
+  readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
 
   protected readonly coverUrl = songCoverUrl;
-
-  private readonly playLabel = translate('songs.row.play');
-  private readonly editLabel = translate('songs.row.edit');
-  private readonly deleteLabel = translate('songs.row.delete');
-  protected readonly items = computed<MenuItem[]>(() => [
-    {
-      label: `${this.playLabel()}`,
-      icon: 'play',
-      command: () => this.play.emit(this.song()),
-    },
-    {
-      label: `${this.editLabel()}`,
-      icon: 'edit',
-      command: () => this.edit.emit(this.song()),
-    },
-    {
-      label: `${this.deleteLabel()}`,
-      icon: 'trash',
-      command: () => this.delete.emit(this.song()),
-    },
-  ]);
 }

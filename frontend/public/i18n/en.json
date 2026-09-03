@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Recordplayer"
+    "title": "ToneArm"
   },
   "library": {
     "views": {
@@ -37,7 +37,9 @@
       "coverAlt": "Cover art for {{title}}",
       "play": "Play",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "addToPlaylist": "Add to Playlist",
+      "noPlaylists": "No playlists yet"
     },
     "edit": {
       "title": "Edit song",

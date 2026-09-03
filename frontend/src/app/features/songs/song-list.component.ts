@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DataView } from '@openng/optimus-ui/dataview';
-import type { SongDto } from '../../api';
+import type { PlaylistDto, SongDto } from '../../api';
 import { SongRowComponent } from './song-row.component';
 
 /**
@@ -43,9 +43,11 @@ import { SongRowComponent } from './song-row.component';
               <app-song-row
                 [song]="song"
                 [firstRow]="first"
+                [playlists]="playlists()"
                 (play)="play.emit($event)"
                 (edit)="edit.emit($event)"
                 (delete)="delete.emit($event)"
+                (addToPlaylist)="addToPlaylist.emit($event)"
               />
             }
           </ng-template>
@@ -58,7 +60,10 @@ export class SongListComponent {
   readonly songs = input<SongDto[]>([]);
   readonly isPending = input(false);
   readonly isError = input(false);
+  /** Playlists offered in each row's "Add to Playlist" submenu. */
+  readonly playlists = input<PlaylistDto[]>([]);
   readonly play = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
+  readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
 }
