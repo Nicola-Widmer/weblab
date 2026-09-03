@@ -15,15 +15,15 @@ Angular shell plus the generated API layer — no feature UI yet.
 
 ## Stack
 
-| Concern | Choice |
-| --- | --- |
-| Frontend | Angular 22 (zoneless), TanStack Query, generated HeyApi client |
-| Backend | NestJS (Express platform) + TypeScript, DDD + hexagonal ([ADR-0002](Documentation/adr/0002-ddd-hexagonal-backend.typ)) |
-| Database | PostgreSQL 17 via Kysely |
-| Audio storage | `FileStorage` port — local volume (default) or S3 ([ADR-0004](Documentation/adr/0004-metadata-postgres-blob-storage-port.typ)) |
+| Concern | Choice                                                                                                                            |
+| --- |-----------------------------------------------------------------------------------------------------------------------------------|
+| Frontend | Angular 22 (zoneless), TanStack Query, generated HeyApi client                                                                    |
+| Backend | NestJS (Express platform) + TypeScript, DDD + hexagonal ([ADR-0002](Documentation/adr/0002-ddd-hexagonal-backend.typ)), drizzle   |
+| Database | PostgreSQL 17                                                                                                                     |
+| Audio storage | `FileStorage` port — local volume (default) or S3 ([ADR-0004](Documentation/adr/0004-metadata-postgres-blob-storage-port.typ))    |
 | API contract | NestJS controllers/DTOs → OpenAPI 3.0 → typed client ([ADR-0006](Documentation/adr/0006-openapi-typed-client-tanstack-query.typ)) |
-| Tests | Vitest / Jest (unit), Supertest + Testcontainers (integration), Playwright (E2E) |
-| Packaging | Docker Compose, nginx in front ([ADR-0003](Documentation/adr/0003-nginx-serves-frontend.typ)) |
+| Tests | Vitest / Jest (unit), Supertest + Testcontainers (integration), Playwright (E2E)                                                  |
+| Packaging | Docker Compose, nginx in front ([ADR-0003](Documentation/adr/0003-nginx-serves-frontend.typ))                                     |
 
 ## Run it — Docker Compose
 
