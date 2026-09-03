@@ -2,6 +2,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   effect,
   ElementRef,
@@ -49,10 +50,13 @@ const linear = (t: number): number => t;
   imports: [LucideMusic],
   template: `
     @let s = song();
-    <div class="relative size-full" [class.is-ready]="ready()" [class.is-engaged]="armEngaged()">
-      <div #disc class="disc absolute inset-0 rounded-full">
+    <div class="relative size-full" [class.not-ready]="!ready()">
+      <div
+        #disc
+        class="disc absolute inset-0 rounded-full will-change-transform [transform:translateZ(0)]"
+      >
         <div
-          class="label absolute left-1/2 top-1/2 aspect-square w-[38%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full"
+          class="label absolute left-1/2 top-1/2 aspect-square w-[38%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full ring-2 ring-inset ring-black/30"
         >
           @if (s && s.hasCover) {
             <img [src]="coverUrl(s.id)" alt="" class="size-full object-cover" />
@@ -67,18 +71,20 @@ const linear = (t: number): number => t;
       </div>
 
       <div
-        class="spindle absolute left-1/2 top-1/2 aspect-square w-[2.4%] min-w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        class="spindle absolute left-1/2 top-1/2 z-20 aspect-square w-[2.4%] min-w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
       ></div>
 
-      <div class="sheen pointer-events-none absolute inset-0 rounded-full"></div>
+      <div
+        class="sheen pointer-events-none absolute inset-0 z-10 rounded-full mix-blend-screen"
+      ></div>
 
       <svg
-        class="tonearm pointer-events-none absolute right-[2%] top-[1%] w-[54%]"
+        class="tonearm pointer-events-none absolute right-[2%] top-[1%] z-30 w-[54%] overflow-visible drop-shadow-[0_3px_5px_rgba(0,0,0,0.35)]"
         viewBox="0 0 100 100"
         fill="none"
         aria-hidden="true"
       >
-        <g class="arm">
+        <g class="arm" [style.transform]="armTransform()">
           <rect x="78" y="9.5" width="18" height="9" rx="4.5" fill="#8b9099" />
           <circle cx="76" cy="19" r="9" fill="#33363b" />
           <circle cx="76" cy="19" r="4.5" fill="#b9bdc4" />
@@ -104,19 +110,11 @@ const linear = (t: number): number => t;
         inset 0 0 0 2px rgba(255, 255, 255, 0.04),
         inset 0 0 22px rgba(0, 0, 0, 0.7),
         0 12px 28px -8px rgba(0, 0, 0, 0.55);
-      transform: rotate(0deg);
-      will-change: transform;
-    }
-    .label {
-      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.35);
     }
     .spindle {
-      z-index: 2;
       background: radial-gradient(circle at 35% 30%, #f4f5f7, #a9adb5 60%, #6c7078);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     }
     .sheen {
-      z-index: 1;
       background: linear-gradient(
         122deg,
         rgba(255, 255, 255, 0.22) 0%,
@@ -125,29 +123,17 @@ const linear = (t: number): number => t;
         rgba(255, 255, 255, 0) 60%,
         rgba(255, 255, 255, 0.08) 100%
       );
-      mix-blend-mode: screen;
-    }
-    .tonearm {
-      z-index: 3;
-      overflow: visible;
-      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.35));
     }
     .arm {
-      transform: rotate(35deg);
       transform-origin: 76px 19px;
+      transition: transform 680ms cubic-bezier(0.34, 1.15, 0.5, 1);
     }
-    .is-engaged .arm {
-      transform: rotate(5deg);
-    }
-    .is-ready .arm {
-      transition: transform 700ms cubic-bezier(0.34, 1.3, 0.64, 1);
-    }
-    .is-ready.is-engaged .arm {
-      transition: transform 620ms cubic-bezier(0.2, 0.9, 0.3, 1);
+    .not-ready .arm {
+      transition: none;
     }
     @media (prefers-reduced-motion: reduce) {
       .arm {
-        transition: none !important;
+        transition: none;
       }
     }
   `,
@@ -158,7 +144,10 @@ export class PlayerTurntableComponent {
 
   protected readonly coverUrl = songCoverUrl;
   protected readonly ready = signal(false);
-  protected readonly armEngaged = signal(false);
+  /** Parked well off the disc; swung down onto the outer groove when engaged. */
+  protected readonly armTransform = computed(() => `rotate(${this.armEngaged() ? 5 : 35}deg)`);
+
+  private readonly armEngaged = signal(false);
 
   private readonly discRef = viewChild<ElementRef<HTMLElement>>('disc');
   private readonly destroyRef = inject(DestroyRef);

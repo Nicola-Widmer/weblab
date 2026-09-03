@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core
 import { TranslatePipe } from '@ngx-translate/core';
 import { Drawer } from '@openng/optimus-ui/drawer';
 import { PlayerService } from './player.service';
-import { PlayerScrubberComponent } from './player-scrubber.component';
+import { PlayerScrubberArcComponent } from './player-scrubber-arc.component';
 import { PlayerTransportComponent } from './player-transport.component';
 import { PlayerTurntableComponent } from './player-turntable.component';
 import { PlayerVolumeComponent } from './player-volume.component';
@@ -18,7 +18,7 @@ import { PlayerVolumeComponent } from './player-volume.component';
   imports: [
     Drawer,
     TranslatePipe,
-    PlayerScrubberComponent,
+    PlayerScrubberArcComponent,
     PlayerTransportComponent,
     PlayerTurntableComponent,
     PlayerVolumeComponent,
@@ -37,7 +37,16 @@ import { PlayerVolumeComponent } from './player-volume.component';
       <div
         class="mx-auto flex h-full max-w-sm flex-col items-center justify-center gap-8 px-6 pb-10"
       >
-        <app-player-turntable class="w-full max-w-64" [song]="song" [playing]="player.playing()" />
+        <div class="relative w-full max-w-64">
+          <app-player-turntable class="block" [song]="song" [playing]="player.playing()" />
+          <app-player-scrubber-arc
+            class="absolute inset-0 text-surface-900 dark:text-surface-0"
+            [currentTime]="player.currentTime()"
+            [duration]="player.duration()"
+            [disabled]="!song"
+            (seek)="player.seek($event)"
+          />
+        </div>
         <div class="w-full text-center">
           <div class="truncate text-lg font-semibold">
             {{ song?.title ?? ('player.idle' | translate) }}
@@ -48,12 +57,6 @@ import { PlayerVolumeComponent } from './player-volume.component';
             </div>
           }
         </div>
-        <app-player-scrubber
-          [currentTime]="player.currentTime()"
-          [duration]="player.duration()"
-          [disabled]="!song"
-          (seek)="player.seek($event)"
-        />
         <app-player-transport
           class="scale-125"
           [playing]="player.playing()"
