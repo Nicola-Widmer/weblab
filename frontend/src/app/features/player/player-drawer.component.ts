@@ -4,8 +4,8 @@ import { Drawer } from '@openng/optimus-ui/drawer';
 import { PlayerService } from './player.service';
 import { PlayerScrubberComponent } from './player-scrubber.component';
 import { PlayerTransportComponent } from './player-transport.component';
+import { PlayerTurntableComponent } from './player-turntable.component';
 import { PlayerVolumeComponent } from './player-volume.component';
-import { songCoverUrl } from '../../shared/song-asset-urls';
 
 /**
  * Expanded "now playing" view — a bottom sheet raised by tapping the bar's
@@ -20,6 +20,7 @@ import { songCoverUrl } from '../../shared/song-asset-urls';
     TranslatePipe,
     PlayerScrubberComponent,
     PlayerTransportComponent,
+    PlayerTurntableComponent,
     PlayerVolumeComponent,
   ],
   template: `
@@ -33,14 +34,10 @@ import { songCoverUrl } from '../../shared/song-asset-urls';
       [blockScroll]="true"
       (visibleChange)="visible.set($event)"
     >
-      <div class="mx-auto flex h-full max-w-sm flex-col items-center justify-center gap-8 px-6 pb-10">
-        <div
-          class="aspect-square w-full max-w-64 overflow-hidden rounded-2xl bg-surface-200 shadow-lg dark:bg-surface-700"
-        >
-          @if (song && song.hasCover) {
-            <img [src]="coverUrl(song.id)" alt="" class="size-full object-cover" />
-          }
-        </div>
+      <div
+        class="mx-auto flex h-full max-w-sm flex-col items-center justify-center gap-8 px-6 pb-10"
+      >
+        <app-player-turntable class="w-full max-w-64" [song]="song" [playing]="player.playing()" />
         <div class="w-full text-center">
           <div class="truncate text-lg font-semibold">
             {{ song?.title ?? ('player.idle' | translate) }}
@@ -77,6 +74,5 @@ import { songCoverUrl } from '../../shared/song-asset-urls';
 })
 export class PlayerDrawerComponent {
   protected readonly player = inject(PlayerService);
-  protected readonly coverUrl = songCoverUrl;
   readonly visible = model(false);
 }
