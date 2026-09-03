@@ -27,15 +27,16 @@ import { SongUploadComponent } from './song-upload.component';
   imports: [SongUploadComponent, SongListComponent, SongEditDialogComponent, TranslatePipe],
   template: `
     <h1>{{ 'songs.title' | translate }}</h1>
-    <app-song-upload />
-    <app-song-list
-      [songs]="songs.data() ?? []"
-      [isPending]="songs.isPending()"
-      [isError]="songs.isError()"
-      (play)="play($event)"
-      (edit)="editing.set($event)"
-      (delete)="remove($event)"
-    />
+    <app-song-upload>
+      <app-song-list
+        [songs]="songs.data() ?? []"
+        [isPending]="songs.isPending()"
+        [isError]="songs.isError()"
+        (play)="play($event)"
+        (edit)="editing.set($event)"
+        (delete)="remove($event)"
+      />
+    </app-song-upload>
     @if (removal.isError()) {
       <p>{{ 'songs.delete.error' | translate }}</p>
     }
