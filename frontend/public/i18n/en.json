@@ -1,0 +1,76 @@
+{
+  "app": {
+    "title": "Recordplayer"
+  },
+  "library": {
+    "views": {
+      "songs": "Songs",
+      "playlists": "Playlists"
+    }
+  },
+  "playlists": {
+    "title": "Playlists",
+    "list": {
+      "loading": "Loading…",
+      "error": "Failed to load playlists.",
+      "empty": "No playlists yet."
+    },
+    "card": {
+      "tracks": "{{count}} track(s)"
+    }
+  },
+  "songs": {
+    "title": "Songs",
+    "list": {
+      "loading": "Loading…",
+      "error": "Failed to load songs.",
+      "empty": "No songs yet.",
+      "columns": {
+        "song": "Song",
+        "artist": "Artist",
+        "album": "Album",
+        "time": "Time"
+      }
+    },
+    "row": {
+      "moreActions": "More actions",
+      "coverAlt": "Cover art for {{title}}",
+      "play": "Play",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "edit": {
+      "title": "Edit song",
+      "fieldTitle": "Title",
+      "fieldArtist": "Artist",
+      "fieldAlbum": "Album",
+      "titleRequired": "Title is required.",
+      "titleTooLong": "Title must be 200 characters or fewer.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "error": "Couldn’t save changes."
+    },
+    "delete": {
+      "confirm": "Delete “{{title}}”? This can’t be undone.",
+      "error": "Couldn’t delete the song."
+    },
+    "upload": {
+      "button": "Add songs",
+      "hint": "Drag .mp3 files onto the list to add them.",
+      "drop": "Drop .mp3 files to add them",
+      "uploading": "Uploading {{count}} file(s)…",
+      "rejected": "Skipped {{count}} file(s) that aren’t .mp3.",
+      "failed": "{{count}} upload(s) failed."
+    }
+  },
+  "player": {
+    "idle": "Not playing",
+    "expand": "Open now playing",
+    "play": "Play",
+    "pause": "Pause",
+    "previous": "Previous track",
+    "next": "Next track",
+    "seek": "Seek",
+    "volume": "Volume"
+  }
+}
