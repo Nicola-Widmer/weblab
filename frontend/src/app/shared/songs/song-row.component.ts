@@ -2,15 +2,17 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import type { PlaylistDto, SongDto } from '../../api';
-import { songCoverUrl } from '../../shared/song-asset-urls';
+import { songCoverUrl } from '../song-asset-urls';
 import { SongMenuComponent } from './song-menu.component';
 
 /**
  * One row of the song list: a cover pane, then the columns that line up with the
- * list header (title | artist | album | time | ⋯ menu). The separator sits on
- * the inner grid so it starts at the title, not under the cover. Presentational
- * — reports intent through `play` / `edit` / `delete` / `addToPlaylist`, the
- * last three just forwarded from `app-song-menu`.
+ * list header (title | artist | album | time | ⋯ menu). A full-bleed overlay
+ * button makes the whole row (everything but the menu) a play target; the menu
+ * cell is lifted above it with `z-10`. The separator sits on the inner grid so
+ * it starts at the title, not under the cover. Presentational — reports intent
+ * through `play` / `edit` / `delete` / `addToPlaylist`, the last three just
+ * forwarded from `app-song-menu`.
  */
 @Component({
   selector: 'app-song-row',
@@ -18,7 +20,15 @@ import { SongMenuComponent } from './song-menu.component';
   imports: [DatePipe, TranslatePipe, SongMenuComponent],
   template: `
     @let s = song();
-    <div class="grid grid-cols-[2.5rem_1fr] items-center gap-3 px-2">
+    <div
+      class="relative grid grid-cols-[2.5rem_1fr] items-center gap-3 rounded px-2 transition hover:bg-surface-100 dark:hover:bg-surface-800/60"
+    >
+      <button
+        type="button"
+        class="absolute inset-0 z-0 cursor-pointer"
+        [attr.aria-label]="'songs.row.playTitle' | translate: { title: s.title }"
+        (click)="play.emit(s)"
+      ></button>
       <img
         [src]="s.hasCover ? coverUrl(s.id) : ''"
         [alt]="s.hasCover ? ('songs.row.coverAlt' | translate: { title: s.title }) : ''"
@@ -31,15 +41,13 @@ import { SongMenuComponent } from './song-menu.component';
         class="grid grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_minmax(0,1.4fr)_auto_2.75rem] items-center gap-3 border-surface-200 py-2 dark:border-surface-700"
         [class.border-t]="!firstRow()"
       >
-        <button type="button" class="truncate text-left" (click)="play.emit(s)">
-          {{ s.title }}
-        </button>
+        <span class="truncate">{{ s.title }}</span>
         <span class="truncate text-surface-600 dark:text-surface-400">{{ s.artist }}</span>
         <span class="truncate text-surface-600 dark:text-surface-400">{{ s.album }}</span>
         <span class="text-right tabular-nums text-surface-600 dark:text-surface-400">
           {{ s.duration * 1000 | date: 'm:ss' : 'UTC' }}
         </span>
-        <div class="flex justify-end">
+        <div class="relative z-10 flex justify-end">
           <app-song-menu
             [song]="s"
             [playlists]="playlists()"

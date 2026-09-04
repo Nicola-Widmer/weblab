@@ -2,6 +2,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsInt,
+  IsISO8601,
   IsString,
   IsUUID,
   MinLength,
@@ -34,6 +35,10 @@ export class PlaylistDto {
 
   @IsInt()
   trackCount!: number;
+
+  /** When the playlist was created, as an ISO 8601 timestamp. */
+  @IsISO8601()
+  createdAt!: string;
 }
 
 export class CreatePlaylistDto {

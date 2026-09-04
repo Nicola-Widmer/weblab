@@ -755,6 +755,10 @@
           },
           "trackCount": {
             "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the playlist was created, as an ISO 8601 timestamp."
           }
         },
         "required": [
@@ -762,7 +766,8 @@
           "ownerId",
           "name",
           "entries",
-          "trackCount"
+          "trackCount",
+          "createdAt"
         ]
       },
       "CreatePlaylistDto": {

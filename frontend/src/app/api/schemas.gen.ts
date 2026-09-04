@@ -148,6 +148,10 @@ export const PlaylistDtoSchema = {
         },
         trackCount: {
             type: 'number'
+        },
+        createdAt: {
+            type: 'string',
+            description: 'When the playlist was created, as an ISO 8601 timestamp.'
         }
     },
     required: [
@@ -155,7 +159,8 @@ export const PlaylistDtoSchema = {
         'ownerId',
         'name',
         'entries',
-        'trackCount'
+        'trackCount',
+        'createdAt'
     ]
 } as const;
 

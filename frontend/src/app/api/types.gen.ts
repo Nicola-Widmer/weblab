@@ -48,6 +48,10 @@ export type PlaylistDto = {
     name: string;
     entries: Array<PlaylistEntryDto>;
     trackCount: number;
+    /**
+     * When the playlist was created, as an ISO 8601 timestamp.
+     */
+    createdAt: string;
 };
 
 export type CreatePlaylistDto = {

@@ -105,5 +105,6 @@ function toDto(playlist: Playlist): PlaylistDto {
       position: e.position,
     })),
     trackCount: playlist.entries.length,
+    createdAt: playlist.createdAt.toISOString(),
   };
 }

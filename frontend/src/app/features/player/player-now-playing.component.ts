@@ -5,7 +5,8 @@ import { songCoverUrl } from '../../shared/song-asset-urls';
 
 /**
  * Left cluster of the player bar: cover thumbnail + title/artist, or an idle
- * placeholder. Tapping the cover asks the host to expand the full player.
+ * placeholder. Tapping the cover or the title/artist asks the host to expand
+ * the full player.
  */
 @Component({
   selector: 'app-player-now-playing',
@@ -24,12 +25,17 @@ import { songCoverUrl } from '../../shared/song-asset-urls';
         <img [src]="coverUrl(s.id)" alt="" class="size-full object-cover" />
       }
     </button>
-    <div class="min-w-0 text-sm">
+    <button
+      type="button"
+      class="min-w-0 text-left text-sm transition hover:opacity-80"
+      [attr.aria-label]="'player.expand' | translate"
+      (click)="expand.emit()"
+    >
       <div class="truncate font-medium">{{ s?.title ?? ('player.idle' | translate) }}</div>
       @if (s && s.artist) {
         <div class="truncate text-xs text-surface-500 dark:text-surface-400">{{ s.artist }}</div>
       }
-    </div>
+    </button>
   `,
 })
 export class PlayerNowPlayingComponent {

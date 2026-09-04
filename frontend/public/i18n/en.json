@@ -10,6 +10,17 @@
   },
   "playlists": {
     "title": "Playlists",
+    "actions": {
+      "create": "New playlist"
+    },
+    "create": {
+      "title": "New playlist",
+      "fieldName": "Name",
+      "nameRequired": "Name is required.",
+      "save": "Create",
+      "cancel": "Cancel",
+      "error": "Couldn’t create the playlist."
+    },
     "list": {
       "loading": "Loading…",
       "error": "Failed to load playlists.",
@@ -17,6 +28,13 @@
     },
     "card": {
       "tracks": "{{count}} track(s)"
+    },
+    "detail": {
+      "back": "Back to playlists",
+      "loading": "Loading…",
+      "error": "Failed to load playlist.",
+      "created": "Created",
+      "empty": "No songs in this playlist yet."
     }
   },
   "songs": {
@@ -36,6 +54,7 @@
       "moreActions": "More actions",
       "coverAlt": "Cover art for {{title}}",
       "play": "Play",
+      "playTitle": "Play {{title}}",
       "edit": "Edit",
       "delete": "Delete",
       "addToPlaylist": "Add to Playlist",
