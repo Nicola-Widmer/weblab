@@ -5,7 +5,18 @@ import type { PlaylistDto, SongDto } from '../../api';
 import { SongRowComponent } from './song-row.component';
 
 /**
- * Presentational list shell: takes the already-fetched songs plus the query's
+ * One entry to render. In the library a row is just a song; inside a playlist it
+ * also carries the `entryId` of the occurrence it stands for, so duplicates of
+ * the same song stay individually addressable (unique `@for` key, precise
+ * "remove from playlist").
+ */
+export interface SongRow {
+  song: SongDto;
+  entryId?: string;
+}
+
+/**
+ * Presentational list shell: takes the already-fetched rows plus the query's
  * status flags and renders them as an iTunes-style table (the header grid tracks
  * mirror `SongRowComponent`). Fetching, deletion and playback live in
  * `SongsPageComponent`; this component only forwards row events upward.
@@ -37,16 +48,19 @@ import { SongRowComponent } from './song-row.component';
             <span></span>
           </div>
         </div>
-        <p-dataview [value]="songs()" [emptyMessage]="'songs.list.empty' | translate">
+        <p-dataview [value]="rows()" [emptyMessage]="'songs.list.empty' | translate">
           <ng-template #list let-items>
-            @for (song of items; track song.id; let first = $first) {
+            @for (row of items; track row.entryId ?? row.song.id; let first = $first) {
               <app-song-row
-                [song]="song"
+                [song]="row.song"
+                [entryId]="row.entryId"
                 [firstRow]="first"
                 [playlists]="playlists()"
+                [variant]="variant()"
                 (play)="play.emit($event)"
                 (edit)="edit.emit($event)"
                 (delete)="delete.emit($event)"
+                (removeFromPlaylist)="removeFromPlaylist.emit($event)"
                 (addToPlaylist)="addToPlaylist.emit($event)"
               />
             }
@@ -57,13 +71,16 @@ import { SongRowComponent } from './song-row.component';
   `,
 })
 export class SongListComponent {
-  readonly songs = input<SongDto[]>([]);
+  readonly rows = input<SongRow[]>([]);
   readonly isPending = input(false);
   readonly isError = input(false);
   /** Playlists offered in each row's "Add to Playlist" submenu. */
   readonly playlists = input<PlaylistDto[]>([]);
+  /** Forwarded to each row's menu — see `SongMenuComponent.variant`. */
+  readonly variant = input<'library' | 'playlist'>('library');
   readonly play = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
+  readonly removeFromPlaylist = output<{ song: SongDto; entryId: string }>();
   readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
 }

@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { songsControllerListOptions } from '../../api/@tanstack/angular-query-experimental.gen';
 import { SongListPanelComponent } from '../../shared/songs/song-list-panel.component';
+import type { SongRow } from '../../shared/songs/song-list.component';
 import { SongUploadComponent } from './song-upload.component';
 
 /**
@@ -19,7 +20,7 @@ import { SongUploadComponent } from './song-upload.component';
 
     <app-song-upload>
       <app-song-list-panel
-        [songs]="songs.data() ?? []"
+        [rows]="rows()"
         [isPending]="songs.isPending()"
         [isError]="songs.isError()"
       />
@@ -28,4 +29,8 @@ import { SongUploadComponent } from './song-upload.component';
 })
 export class SongsPageComponent {
   protected readonly songs = injectQuery(() => songsControllerListOptions());
+
+  protected readonly rows = computed<SongRow[]>(() =>
+    (this.songs.data() ?? []).map((song) => ({ song })),
+  );
 }

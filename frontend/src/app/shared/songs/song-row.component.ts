@@ -50,10 +50,13 @@ import { SongMenuComponent } from './song-menu.component';
         <div class="relative z-10 flex justify-end">
           <app-song-menu
             [song]="s"
+            [entryId]="entryId()"
             [playlists]="playlists()"
+            [variant]="variant()"
             (play)="play.emit($event)"
             (edit)="edit.emit($event)"
             (delete)="delete.emit($event)"
+            (removeFromPlaylist)="removeFromPlaylist.emit($event)"
             (addToPlaylist)="addToPlaylist.emit($event)"
           />
         </div>
@@ -65,11 +68,16 @@ export class SongRowComponent {
   readonly song = input.required<SongDto>();
   /** First row draws no separator. */
   readonly firstRow = input(false);
+  /** The playlist entry this row stands for, when rendered inside a playlist. */
+  readonly entryId = input<string>();
   /** Playlists offered in the row's "Add to Playlist" submenu. */
   readonly playlists = input<PlaylistDto[]>([]);
+  /** Forwarded to `app-song-menu` — see its `variant` input. */
+  readonly variant = input<'library' | 'playlist'>('library');
   readonly play = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
+  readonly removeFromPlaylist = output<{ song: SongDto; entryId: string }>();
   readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
 
   protected readonly coverUrl = songCoverUrl;

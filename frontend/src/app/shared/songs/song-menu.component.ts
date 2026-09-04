@@ -70,19 +70,44 @@ export class SongMenuComponent {
   readonly song = input.required<SongDto>();
   /** Playlists offered in the "Add to Playlist" submenu. */
   readonly playlists = input<PlaylistDto[]>([]);
+  /**
+   * `'library'` (default) offers "Delete", which removes the song everywhere.
+   * `'playlist'` swaps that for "Remove from Playlist", which only drops the
+   * entry from the playlist being viewed.
+   */
+  readonly variant = input<'library' | 'playlist'>('library');
+  /** The playlist entry this menu acts on, in the `'playlist'` variant. */
+  readonly entryId = input<string>();
   readonly play = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
+  readonly removeFromPlaylist = output<{ song: SongDto; entryId: string }>();
   readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
 
   private readonly playLabel = translate('songs.row.play');
   private readonly editLabel = translate('songs.row.edit');
   private readonly deleteLabel = translate('songs.row.delete');
+  private readonly removeFromPlaylistLabel = translate('songs.row.removeFromPlaylist');
   private readonly addToPlaylistLabel = translate('songs.row.addToPlaylist');
   private readonly noPlaylistsLabel = translate('songs.row.noPlaylists');
 
   protected readonly items = computed<MenuItem[]>(() => {
     const playlists = this.playlists();
+    const entryId = this.entryId();
+    const removeItem: MenuItem =
+      this.variant() === 'playlist'
+        ? {
+            label: `${this.removeFromPlaylistLabel()}`,
+            icon: 'trash',
+            disabled: !entryId,
+            command: () =>
+              entryId && this.removeFromPlaylist.emit({ song: this.song(), entryId }),
+          }
+        : {
+            label: `${this.deleteLabel()}`,
+            icon: 'trash',
+            command: () => this.delete.emit(this.song()),
+          };
     return [
       {
         label: `${this.playLabel()}`,
@@ -105,11 +130,7 @@ export class SongMenuComponent {
             }))
           : [{ label: `${this.noPlaylistsLabel()}`, disabled: true }],
       },
-      {
-        label: `${this.deleteLabel()}`,
-        icon: 'trash',
-        command: () => this.delete.emit(this.song()),
-      },
+      removeItem,
     ];
   });
 }

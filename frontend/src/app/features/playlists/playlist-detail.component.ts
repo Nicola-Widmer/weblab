@@ -10,6 +10,7 @@ import {
   songsControllerListOptions,
 } from '../../api/@tanstack/angular-query-experimental.gen';
 import { SongListPanelComponent } from '../../shared/songs/song-list-panel.component';
+import type { SongRow } from '../../shared/songs/song-list.component';
 
 /**
  * The `/playlists/:id` route. Fetches the playlist and the song library, then
@@ -52,14 +53,15 @@ import { SongListPanelComponent } from '../../shared/songs/song-list-panel.compo
 
       @if (songs.isError()) {
         <p>{{ 'songs.list.error' | translate }}</p>
-      } @else if (orderedSongs().length === 0 && !songs.isPending()) {
+      } @else if (rows().length === 0 && !songs.isPending()) {
         <p class="text-surface-500 dark:text-surface-400">
           {{ 'playlists.detail.empty' | translate }}
         </p>
       } @else {
         <app-song-list-panel
-          [songs]="orderedSongs()"
+          [rows]="rows()"
           [isPending]="songs.isPending()"
+          [playlist]="p"
         />
       }
     }
@@ -74,13 +76,20 @@ export class PlaylistDetailComponent {
   );
   protected readonly songs = injectQuery(() => songsControllerListOptions());
 
-  /** Playlist entries in order, joined to their song (unresolved ones dropped). */
-  protected readonly orderedSongs = computed<SongDto[]>(() => {
+  /**
+   * Playlist entries in order, each joined to its song and keeping its `entryId`
+   * (unresolved entries dropped). Duplicates of a song stay distinct rows.
+   */
+  protected readonly rows = computed<SongRow[]>(() => {
     const byId = new Map<string, SongDto>((this.songs.data() ?? []).map((s) => [s.id, s]));
-    return (this.playlist.data()?.entries ?? [])
+    const ordered = (this.playlist.data()?.entries ?? [])
       .slice()
-      .sort((a, b) => a.position - b.position)
-      .map((e) => byId.get(e.songId))
-      .filter((s): s is SongDto => s !== undefined);
+      .sort((a, b) => a.position - b.position);
+    const rows: SongRow[] = [];
+    for (const e of ordered) {
+      const song = byId.get(e.songId);
+      if (song) rows.push({ song, entryId: e.id });
+    }
+    return rows;
   });
 }

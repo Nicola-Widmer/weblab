@@ -57,6 +57,7 @@
       "playTitle": "Play {{title}}",
       "edit": "Edit",
       "delete": "Delete",
+      "removeFromPlaylist": "Remove from Playlist",
       "addToPlaylist": "Add to Playlist",
       "noPlaylists": "No playlists yet"
     },
@@ -74,6 +75,10 @@
     "delete": {
       "confirm": "Delete “{{title}}”? This can’t be undone.",
       "error": "Couldn’t delete the song."
+    },
+    "removeFromPlaylist": {
+      "confirm": "Remove “{{title}}” from this playlist?",
+      "error": "Couldn’t remove the song from the playlist."
     },
     "upload": {
       "button": "Add songs",
