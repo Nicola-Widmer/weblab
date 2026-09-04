@@ -5,7 +5,7 @@ import { Button } from '@openng/optimus-ui/button';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { playlistsControllerListOptions } from '../../api/@tanstack/angular-query-experimental.gen';
 import { PlaylistCreateDialogComponent } from './playlist-create-dialog.component';
-import { PlaylistGridComponent } from './playlist-grid.component';
+import { PlaylistGridComponent } from './ui/playlist-grid.component';
 
 /**
  * The `/playlists` route. Owns the playlist list query; the grid is

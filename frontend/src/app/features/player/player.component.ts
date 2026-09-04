@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { PlayerService } from './player.service';
 import { PlayerDrawerComponent } from './player-drawer.component';
-import { PlayerNowPlayingComponent } from './player-now-playing.component';
-import { PlayerScrubberComponent } from './player-scrubber.component';
-import { PlayerTransportComponent } from './player-transport.component';
-import { PlayerVolumeComponent } from './player-volume.component';
+import { PlayerNowPlayingComponent } from './ui/player-now-playing.component';
+import { PlayerScrubberComponent } from './ui/player-scrubber.component';
+import { PlayerTransportComponent } from './ui/player-transport.component';
+import { PlayerVolumeComponent } from './ui/player-volume.component';
 
 /**
  * Sticky bottom transport bar, always visible. Pure view: playback lives in

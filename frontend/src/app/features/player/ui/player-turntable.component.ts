@@ -13,8 +13,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { LucideMusic } from '@lucide/angular';
-import type { SongDto } from '../../api';
-import { songCoverUrl } from '../../shared/song-asset-urls';
+import type { SongDto } from '../../../api';
+import { songCoverUrl } from '../../../shared/song-asset-urls';
 
 /** 33⅓ rpm — one revolution in milliseconds. */
 const REV_MS = 1800;

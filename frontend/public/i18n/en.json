@@ -22,7 +22,6 @@
       "error": "Couldn’t create the playlist."
     },
     "list": {
-      "loading": "Loading…",
       "error": "Failed to load playlists.",
       "empty": "No playlists yet."
     },
@@ -31,7 +30,6 @@
     },
     "detail": {
       "back": "Back to playlists",
-      "loading": "Loading…",
       "error": "Failed to load playlist.",
       "created": "Created",
       "empty": "No songs in this playlist yet."
@@ -40,7 +38,6 @@
   "songs": {
     "title": "Songs",
     "list": {
-      "loading": "Loading…",
       "error": "Failed to load songs.",
       "empty": "No songs yet.",
       "columns": {

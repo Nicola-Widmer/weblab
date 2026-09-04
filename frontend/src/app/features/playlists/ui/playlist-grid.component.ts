@@ -3,20 +3,22 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideListMusic } from '@lucide/angular';
 import { DataView } from '@openng/optimus-ui/dataview';
-import type { PlaylistDto } from '../../api';
+import type { PlaylistDto } from '../../../api';
+import { PlaylistGridSkeletonComponent } from './playlist-grid-skeleton.component';
 
 /**
  * Presentational grid of playlists: takes the already-fetched playlists plus the
  * query's status flags and renders each as a card tile linking to the playlist
- * detail route. Fetching lives in `SongsPageComponent`.
+ * detail route. While pending it defers to `PlaylistGridSkeletonComponent`.
+ * Fetching lives in `PlaylistsPageComponent`.
  */
 @Component({
   selector: 'app-playlist-grid',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DataView, RouterLink, TranslatePipe, LucideListMusic],
+  imports: [DataView, RouterLink, TranslatePipe, LucideListMusic, PlaylistGridSkeletonComponent],
   template: `
     @if (isPending()) {
-      <p>{{ 'playlists.list.loading' | translate }}</p>
+      <app-playlist-grid-skeleton />
     } @else if (isError()) {
       <p>{{ 'playlists.list.error' | translate }}</p>
     } @else {

@@ -11,6 +11,7 @@ import {
 } from '../../api/@tanstack/angular-query-experimental.gen';
 import { SongListPanelComponent } from '../../shared/songs/song-list-panel.component';
 import type { SongRow } from '../../shared/songs/song-list.component';
+import { PlaylistDetailSkeletonComponent } from './ui/playlist-detail-skeleton.component';
 
 /**
  * The `/playlists/:id` route. Fetches the playlist and the song library, then
@@ -22,7 +23,15 @@ import type { SongRow } from '../../shared/songs/song-list.component';
 @Component({
   selector: 'app-playlist-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink, TranslatePipe, SongListPanelComponent, LucideListMusic, LucideArrowLeft],
+  imports: [
+    DatePipe,
+    RouterLink,
+    TranslatePipe,
+    SongListPanelComponent,
+    PlaylistDetailSkeletonComponent,
+    LucideListMusic,
+    LucideArrowLeft,
+  ],
   template: `
     <a
       routerLink="/playlists"
@@ -33,7 +42,7 @@ import type { SongRow } from '../../shared/songs/song-list.component';
     </a>
 
     @if (playlist.isPending()) {
-      <p>{{ 'playlists.detail.loading' | translate }}</p>
+      <app-playlist-detail-skeleton />
     } @else if (playlist.isError()) {
       <p>{{ 'playlists.detail.error' | translate }}</p>
     } @else if (playlist.data(); as p) {

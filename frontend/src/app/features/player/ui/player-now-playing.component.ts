@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import type { SongDto } from '../../api';
-import { songCoverUrl } from '../../shared/song-asset-urls';
+import type { SongDto } from '../../../api';
+import { songCoverUrl } from '../../../shared/song-asset-urls';
 
 /**
  * Left cluster of the player bar: cover thumbnail + title/artist, or an idle

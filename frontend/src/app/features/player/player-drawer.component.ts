@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core
 import { TranslatePipe } from '@ngx-translate/core';
 import { Drawer } from '@openng/optimus-ui/drawer';
 import { PlayerService } from './player.service';
-import { PlayerScrubberArcComponent } from './player-scrubber-arc.component';
-import { PlayerTransportComponent } from './player-transport.component';
-import { PlayerTurntableComponent } from './player-turntable.component';
-import { PlayerVolumeComponent } from './player-volume.component';
+import { PlayerScrubberArcComponent } from './ui/player-scrubber-arc.component';
+import { PlayerTransportComponent } from './ui/player-transport.component';
+import { PlayerTurntableComponent } from './ui/player-turntable.component';
+import { PlayerVolumeComponent } from './ui/player-volume.component';
 
 /**
  * Expanded "now playing" view — a bottom sheet raised by tapping the bar's

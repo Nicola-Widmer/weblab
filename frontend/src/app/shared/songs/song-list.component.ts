@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { TranslatePipe } from '@ngx-translate/core';
 import { DataView } from '@openng/optimus-ui/dataview';
 import type { PlaylistDto, SongDto } from '../../api';
+import { SongListSkeletonComponent } from './song-list-skeleton.component';
 import { SongRowComponent } from './song-row.component';
 
 /**
@@ -18,16 +19,17 @@ export interface SongRow {
 /**
  * Presentational list shell: takes the already-fetched rows plus the query's
  * status flags and renders them as an iTunes-style table (the header grid tracks
- * mirror `SongRowComponent`). Fetching, deletion and playback live in
- * `SongsPageComponent`; this component only forwards row events upward.
+ * mirror `SongRowComponent`). While pending it defers to `SongListSkeletonComponent`.
+ * Fetching, deletion and playback live in `SongsPageComponent`; this component
+ * only forwards row events upward.
  */
 @Component({
   selector: 'app-song-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DataView, SongRowComponent, TranslatePipe],
+  imports: [DataView, SongRowComponent, SongListSkeletonComponent, TranslatePipe],
   template: `
     @if (isPending()) {
-      <p>{{ 'songs.list.loading' | translate }}</p>
+      <app-song-list-skeleton />
     } @else if (isError()) {
       <p>{{ 'songs.list.error' | translate }}</p>
     } @else {
