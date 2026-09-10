@@ -1,0 +1,68 @@
+{
+  "realm": "wmp",
+  "displayName": "Web Music Player",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "resetPasswordAllowed": true,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "clients": [
+    {
+      "clientId": "wmp-api",
+      "name": "Web Music Player — BFF",
+      "description": "Confidential client. The NestJS backend runs the authorization-code exchange and holds the tokens server-side; the browser only ever gets the opaque session cookie (ADR-0005).",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "dev-secret-change-me",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": false,
+      "redirectUris": [
+        "https://localhost:8443/api/auth/callback",
+        "http://localhost:3000/api/auth/callback",
+        "http://localhost:4200/api/auth/callback"
+      ],
+      "webOrigins": [
+        "https://localhost:8443",
+        "http://localhost:3000",
+        "http://localhost:4200"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "https://localhost:8443/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-wmp-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "wmp-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "dev",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "dev@example.com",
+      "firstName": "Dev",
+      "lastName": "User",
+      "credentials": [{ "type": "password", "value": "dev", "temporary": false }]
+    }
+  ]
+}

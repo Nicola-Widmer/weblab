@@ -26,21 +26,27 @@ import {
 // ── identity ────────────────────────────────────────────────────────────────
 
 export const users = pgTable('users', {
-  id: uuid('id').primaryKey(),
+  id: uuid('id').primaryKey(), // = the Keycloak `sub`
   email: text('email').notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  displayName: text('display_name'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(), // first seen
 });
 
 export const sessions = pgTable(
   'sessions',
   {
-    id: uuid('id').primaryKey(), // opaque; the cookie value
+    id: uuid('id').primaryKey(), // opaque; the BFF cookie value
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    // Keycloak tokens, held server-side (ADR-0005). The browser only gets `id`.
+    accessToken: text('access_token').notNull(),
+    refreshToken: text('refresh_token').notNull(),
+    accessTokenExpiresAt: timestamp('access_token_expires_at', {
+      withTimezone: true,
+    }).notNull(),
   },
   (t) => [
     index('sessions_user_id_idx').on(t.userId),

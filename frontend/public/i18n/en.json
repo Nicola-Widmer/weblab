@@ -8,10 +8,26 @@
       "playlists": "Playlists"
     }
   },
+  "auth": {
+    "signIn": "Sign in",
+    "register": "Create account",
+    "logout": "Log out"
+  },
   "playlists": {
     "title": "Playlists",
     "actions": {
-      "create": "New playlist"
+      "create": "New playlist",
+      "edit": "Rename playlist",
+      "delete": "Delete playlist",
+      "error": "Something went wrong. Please try again."
+    },
+    "rename": {
+      "label": "Playlist name",
+      "save": "Save name",
+      "cancel": "Cancel"
+    },
+    "delete": {
+      "confirm": "Delete “{{name}}”? This can’t be undone."
     },
     "create": {
       "title": "New playlist",
@@ -54,6 +70,9 @@
       "playTitle": "Play {{title}}",
       "edit": "Edit",
       "delete": "Delete",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down",
+      "dragHandle": "Drag to reorder {{title}}",
       "removeFromPlaylist": "Remove from Playlist",
       "addToPlaylist": "Add to Playlist",
       "noPlaylists": "No playlists yet"
@@ -76,6 +95,9 @@
     "removeFromPlaylist": {
       "confirm": "Remove “{{title}}” from this playlist?",
       "error": "Couldn’t remove the song from the playlist."
+    },
+    "reorder": {
+      "error": "Couldn’t save the new order."
     },
     "upload": {
       "button": "Add songs",

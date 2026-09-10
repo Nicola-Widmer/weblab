@@ -10,8 +10,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { LOCAL_USER_ID } from '../../shared/domain/local-user';
-import { asUuid } from '../../shared/domain/uuid';
+import { asUuid, type Uuid } from '../../shared/domain/uuid';
+import { CurrentUser } from '../../shared/http/current-user.decorator';
 import { PlaylistsService } from '../application/playlists.service';
 import type { Playlist } from '../domain/playlist';
 import {
@@ -22,30 +22,34 @@ import {
   ReorderEntriesDto,
 } from './dto/playlist.dto';
 
-// AUTH_ENABLED=false: the fixed local user owns everything (ADR-0005).
-const owner = LOCAL_USER_ID;
-
 @Controller('playlists')
 export class PlaylistsController {
   constructor(private readonly playlists: PlaylistsService) {}
 
   @Get()
-  async list(): Promise<PlaylistDto[]> {
+  async list(@CurrentUser() owner: Uuid): Promise<PlaylistDto[]> {
     return (await this.playlists.list(owner)).map(toDto);
   }
 
   @Post()
-  async create(@Body() body: CreatePlaylistDto): Promise<PlaylistDto> {
+  async create(
+    @CurrentUser() owner: Uuid,
+    @Body() body: CreatePlaylistDto,
+  ): Promise<PlaylistDto> {
     return toDto(await this.playlists.create(owner, body.name));
   }
 
   @Get(':id')
-  async get(@Param('id', ParseUUIDPipe) id: string): Promise<PlaylistDto> {
+  async get(
+    @CurrentUser() owner: Uuid,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<PlaylistDto> {
     return toDto(await this.playlists.get(owner, asUuid(id)));
   }
 
   @Patch(':id')
   async rename(
+    @CurrentUser() owner: Uuid,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: RenamePlaylistDto,
   ): Promise<PlaylistDto> {
@@ -54,12 +58,16 @@ export class PlaylistsController {
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  remove(
+    @CurrentUser() owner: Uuid,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
     return this.playlists.remove(owner, asUuid(id));
   }
 
   @Post(':id/entries')
   async addEntry(
+    @CurrentUser() owner: Uuid,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: AddEntryDto,
   ): Promise<PlaylistDto> {
@@ -71,6 +79,7 @@ export class PlaylistsController {
   @Delete(':id/entries/:entryId')
   @HttpCode(204)
   removeEntry(
+    @CurrentUser() owner: Uuid,
     @Param('id', ParseUUIDPipe) id: string,
     @Param('entryId', ParseUUIDPipe) entryId: string,
   ): Promise<void> {
@@ -81,6 +90,7 @@ export class PlaylistsController {
 
   @Put(':id/entries')
   async reorder(
+    @CurrentUser() owner: Uuid,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: ReorderEntriesDto,
   ): Promise<PlaylistDto> {

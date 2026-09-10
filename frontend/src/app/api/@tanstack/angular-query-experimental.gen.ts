@@ -3,50 +3,8 @@
 import { type DefaultError, type MutationOptions, queryOptions } from '@tanstack/angular-query-experimental';
 
 import { client } from '../client.gen';
-import { authControllerMe, authControllerRegister, authControllerSignIn, authControllerSignOut, type Options, playlistsControllerAddEntry, playlistsControllerCreate, playlistsControllerGet, playlistsControllerList, playlistsControllerRemove, playlistsControllerRemoveEntry, playlistsControllerRename, playlistsControllerReorder, songsControllerAudio, songsControllerCover, songsControllerGet, songsControllerList, songsControllerRemove, songsControllerRetag, songsControllerUpload } from '../sdk.gen';
-import type { AuthControllerMeData, AuthControllerMeResponse, AuthControllerRegisterData, AuthControllerRegisterResponse, AuthControllerSignInData, AuthControllerSignInResponse, AuthControllerSignOutData, AuthControllerSignOutResponse, PlaylistsControllerAddEntryData, PlaylistsControllerAddEntryResponse, PlaylistsControllerCreateData, PlaylistsControllerCreateResponse, PlaylistsControllerGetData, PlaylistsControllerGetResponse, PlaylistsControllerListData, PlaylistsControllerListResponse, PlaylistsControllerRemoveData, PlaylistsControllerRemoveEntryData, PlaylistsControllerRemoveEntryResponse, PlaylistsControllerRemoveResponse, PlaylistsControllerRenameData, PlaylistsControllerRenameResponse, PlaylistsControllerReorderData, PlaylistsControllerReorderResponse, SongsControllerAudioData, SongsControllerAudioResponse, SongsControllerCoverData, SongsControllerCoverResponse, SongsControllerGetData, SongsControllerGetResponse, SongsControllerListData, SongsControllerListResponse, SongsControllerRemoveData, SongsControllerRemoveResponse, SongsControllerRetagData, SongsControllerRetagResponse, SongsControllerUploadData, SongsControllerUploadResponse } from '../types.gen';
-
-export const authControllerRegisterMutation = (options?: Partial<Options<AuthControllerRegisterData>>): MutationOptions<AuthControllerRegisterResponse, DefaultError, Options<AuthControllerRegisterData>> => {
-    const mutationOptions: MutationOptions<AuthControllerRegisterResponse, DefaultError, Options<AuthControllerRegisterData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authControllerRegister({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const authControllerSignInMutation = (options?: Partial<Options<AuthControllerSignInData>>): MutationOptions<AuthControllerSignInResponse, DefaultError, Options<AuthControllerSignInData>> => {
-    const mutationOptions: MutationOptions<AuthControllerSignInResponse, DefaultError, Options<AuthControllerSignInData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authControllerSignIn({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const authControllerSignOutMutation = (options?: Partial<Options<AuthControllerSignOutData>>): MutationOptions<AuthControllerSignOutResponse, DefaultError, Options<AuthControllerSignOutData>> => {
-    const mutationOptions: MutationOptions<AuthControllerSignOutResponse, DefaultError, Options<AuthControllerSignOutData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await authControllerSignOut({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
+import { authControllerMe, type Options, playlistsControllerAddEntry, playlistsControllerCreate, playlistsControllerGet, playlistsControllerList, playlistsControllerRemove, playlistsControllerRemoveEntry, playlistsControllerRename, playlistsControllerReorder, songsControllerAudio, songsControllerCover, songsControllerGet, songsControllerList, songsControllerRemove, songsControllerRetag, songsControllerUpload } from '../sdk.gen';
+import type { AuthControllerMeData, AuthControllerMeResponse, PlaylistsControllerAddEntryData, PlaylistsControllerAddEntryResponse, PlaylistsControllerCreateData, PlaylistsControllerCreateResponse, PlaylistsControllerGetData, PlaylistsControllerGetResponse, PlaylistsControllerListData, PlaylistsControllerListResponse, PlaylistsControllerRemoveData, PlaylistsControllerRemoveEntryData, PlaylistsControllerRemoveEntryResponse, PlaylistsControllerRemoveResponse, PlaylistsControllerRenameData, PlaylistsControllerRenameResponse, PlaylistsControllerReorderData, PlaylistsControllerReorderResponse, SongsControllerAudioData, SongsControllerAudioResponse, SongsControllerCoverData, SongsControllerCoverResponse, SongsControllerGetData, SongsControllerGetResponse, SongsControllerListData, SongsControllerListResponse, SongsControllerRemoveData, SongsControllerRemoveResponse, SongsControllerRetagData, SongsControllerRetagResponse, SongsControllerUploadData, SongsControllerUploadResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -81,9 +39,9 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
     return [params];
 };
 
-export const authControllerMeQueryKey = (options: Options<AuthControllerMeData>) => createQueryKey('authControllerMe', options);
+export const authControllerMeQueryKey = (options?: Options<AuthControllerMeData>) => createQueryKey('authControllerMe', options);
 
-export const authControllerMeOptions = (options: Options<AuthControllerMeData>) => queryOptions<AuthControllerMeResponse, DefaultError, AuthControllerMeResponse, ReturnType<typeof authControllerMeQueryKey>>({
+export const authControllerMeOptions = (options?: Options<AuthControllerMeData>) => queryOptions<AuthControllerMeResponse, DefaultError, AuthControllerMeResponse, ReturnType<typeof authControllerMeQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
         const { data } = await authControllerMe({
             ...options,

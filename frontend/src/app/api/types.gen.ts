@@ -4,19 +4,10 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}/api` | (string & {});
 };
 
-export type CredentialsDto = {
-    email: string;
-    password: string;
-};
-
 export type UserDto = {
     id: string;
     email: string;
     createdAt: string;
-};
-
-export type SessionDto = {
-    token: string;
 };
 
 export type SongDto = {
@@ -70,53 +61,8 @@ export type ReorderEntriesDto = {
     entryIds: Array<string>;
 };
 
-export type AuthControllerRegisterData = {
-    body: CredentialsDto;
-    path?: never;
-    query?: never;
-    url: '/auth/register';
-};
-
-export type AuthControllerRegisterResponses = {
-    201: UserDto;
-};
-
-export type AuthControllerRegisterResponse = AuthControllerRegisterResponses[keyof AuthControllerRegisterResponses];
-
-export type AuthControllerSignInData = {
-    body: CredentialsDto;
-    path?: never;
-    query?: never;
-    url: '/auth/sign-in';
-};
-
-export type AuthControllerSignInResponses = {
-    200: SessionDto;
-};
-
-export type AuthControllerSignInResponse = AuthControllerSignInResponses[keyof AuthControllerSignInResponses];
-
-export type AuthControllerSignOutData = {
-    body?: never;
-    headers: {
-        authorization: string;
-    };
-    path?: never;
-    query?: never;
-    url: '/auth/sign-out';
-};
-
-export type AuthControllerSignOutResponses = {
-    204: void;
-};
-
-export type AuthControllerSignOutResponse = AuthControllerSignOutResponses[keyof AuthControllerSignOutResponses];
-
 export type AuthControllerMeData = {
     body?: never;
-    headers: {
-        authorization: string;
-    };
     path?: never;
     query?: never;
     url: '/auth/me';

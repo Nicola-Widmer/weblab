@@ -34,8 +34,10 @@ An *operator* deploys and runs the Compose stack.
    audio stream with `Range` / `206`.],
   [nginx ↔ NestJS API], [HTTP (proxy)], [Reverse-proxied `/api/*`; `Range`,
    `X-Forwarded-*` headers passed through.],
-  [NestJS API ↔ PostgreSQL], [TCP (pg wire)], [Song & playlist metadata, users,
-   session records.],
+  [NestJS API ↔ PostgreSQL], [TCP (pg wire)], [Song & playlist metadata; local
+   user rows keyed by Keycloak `sub`.],
+  [NestJS API ↔ Keycloak], [HTTP (OIDC)], [Realm discovery & JWKS for access-token
+   validation; Keycloak uses its own PostgreSQL (`keycloak-db`).],
   [NestJS API ↔ Blob storage], [filesystem calls _or_ S3 HTTP API],
   [Read/write/delete audio objects; range reads for streaming.],
 )

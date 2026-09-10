@@ -1,29 +1,30 @@
 import { Uuid } from '../../shared/domain/uuid';
 import { Email } from './email';
-import { PasswordHash } from './password-hash';
 
 /**
- * A registered user. Aggregate root of the `identity` context.
- *
- * The password is only ever held as a `PasswordHash`; hashing and verification
- * are done by the `PasswordHasher` port in the `SignIn` / `Register` use cases,
- * not here (the domain layer imports no ports — ADR-0002).
+ * A user of the app. Aggregate root of the `identity` context, and a
+ * *projection* of the Keycloak user (ADR-0005), not a credential store: `id` is
+ * the Keycloak `sub`, `createdAt` is when the backend first saw them, and no
+ * password is held here — Keycloak owns authentication.
  */
 export class User {
   constructor(
     readonly id: Uuid,
     readonly email: Email,
-    readonly passwordHash: PasswordHash,
     readonly createdAt: Date,
+    readonly displayName: string | undefined = undefined,
   ) {}
 
-  /** Factory for a brand-new user. Caller has already hashed the password. */
-  static register(
+  /**
+   * Projection of a Keycloak user, from a validated access token. `id` is the
+   * Keycloak `sub`; `firstSeenAt` is preserved across later upserts.
+   */
+  static fromKeycloak(
     id: Uuid,
-    email: Email,
-    passwordHash: PasswordHash,
-    now: Date,
+    email: string,
+    displayName: string | undefined,
+    firstSeenAt: Date,
   ): User {
-    return new User(id, email, passwordHash, now);
+    return new User(id, Email.of(email), firstSeenAt, displayName);
   }
 }

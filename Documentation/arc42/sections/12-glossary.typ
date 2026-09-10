@@ -28,8 +28,9 @@
    document.],
   [Range request / 206], [HTTP mechanism to fetch part of a resource
    (`Range: bytes=...` → `206 Partial Content`); enables audio seeking.],
-  [Session cookie], [An opaque identifier in a cookie that maps to a
-   server-side session record.],
+  [OIDC], [OpenID Connect — the identity layer on top of OAuth2 used to
+   authenticate against Keycloak; the backend validates the realm-issued JWT
+   access token per request.],
   [ID3], [Metadata tags embedded in MP3 files (title, artist, album, cover).],
   [MoSCoW], [Prioritisation scheme: Must / Should / Could / Won't.],
   [MinIO], [A self-hostable S3-compatible object storage server, used for local

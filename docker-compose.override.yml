@@ -1,0 +1,16 @@
+# Auto-merged by `docker compose`. Publishes Postgres to the host so the
+# natively-run backend (see mprocs.yaml / `pnpm dev`) can reach it at
+# localhost:5432. Safe to commit — a dev convenience, no secrets. Running the
+# full stack (`docker compose up`) with this present just also exposes 5432.
+services:
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  # Bind-mount local audio storage (ADR-0004 STORAGE_DRIVER=local) instead of the
+  # named `uploads` volume, so the containerised API and a natively-run backend
+  # (`STORAGE_LOCAL_DIR=./uploads`) read and write the same files. Without this,
+  # song rows created in one mode 404 their audio/cover bytes in the other.
+  api:
+    volumes:
+      - ./uploads:/data/uploads

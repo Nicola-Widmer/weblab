@@ -23,8 +23,8 @@ import {
   ApiProduces,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { LOCAL_USER_ID } from '../../shared/domain/local-user';
-import { asUuid } from '../../shared/domain/uuid';
+import { asUuid, type Uuid } from '../../shared/domain/uuid';
+import { CurrentUser } from '../../shared/http/current-user.decorator';
 import type { ByteRange } from '../application/file-storage';
 import type { SongSort } from '../application/song-repository';
 import {
@@ -36,10 +36,6 @@ import type { Song } from '../domain/song';
 import { SongDto, UpdateSongDto } from './dto/song.dto';
 
 const SORTS: SongSort[] = ['title', 'artist', 'dateAdded'];
-
-// AUTH_ENABLED=false: the fixed local user owns everything (ADR-0005). The real
-// session guard resolves the owner per request and is out of scope here.
-const owner = LOCAL_USER_ID;
 
 /** The fields multer's in-memory storage puts on an uploaded file. */
 interface MultipartFile {
@@ -53,7 +49,10 @@ export class SongsController {
   constructor(private readonly songs: SongsService) {}
 
   @Get()
-  async list(@Query('sort') sort?: string): Promise<SongDto[]> {
+  async list(
+    @CurrentUser() owner: Uuid,
+    @Query('sort') sort?: string,
+  ): Promise<SongDto[]> {
     const chosen = SORTS.includes(sort as SongSort)
       ? (sort as SongSort)
       : 'dateAdded';
@@ -73,7 +72,10 @@ export class SongsController {
       properties: { file: { type: 'string', format: 'binary' } },
     },
   })
-  async upload(@UploadedFile() file?: MultipartFile): Promise<SongDto> {
+  async upload(
+    @CurrentUser() owner: Uuid,
+    @UploadedFile() file?: MultipartFile,
+  ): Promise<SongDto> {
     if (!file) throw new BadRequestException('An mp3 `file` part is required');
     return toDto(
       await this.songs.upload(owner, {
@@ -85,12 +87,16 @@ export class SongsController {
   }
 
   @Get(':id')
-  async get(@Param('id', ParseUUIDPipe) id: string): Promise<SongDto> {
+  async get(
+    @CurrentUser() owner: Uuid,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SongDto> {
     return toDto(await this.songs.get(owner, asUuid(id)));
   }
 
   @Patch(':id')
   async retag(
+    @CurrentUser() owner: Uuid,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateSongDto,
   ): Promise<SongDto> {
@@ -99,7 +105,10 @@ export class SongsController {
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  remove(
+    @CurrentUser() owner: Uuid,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
     return this.songs.remove(owner, asUuid(id));
   }
 
@@ -111,6 +120,7 @@ export class SongsController {
     content: { 'audio/mpeg': { schema: { type: 'string', format: 'binary' } } },
   })
   async audio(
+    @CurrentUser() owner: Uuid,
     @Param('id', ParseUUIDPipe) id: string,
     @Headers('range') rangeHeader: string | undefined,
     @Res() res: Response,
@@ -143,6 +153,7 @@ export class SongsController {
     },
   })
   async cover(
+    @CurrentUser() owner: Uuid,
     @Param('id', ParseUUIDPipe) id: string,
     @Res() res: Response,
   ): Promise<void> {

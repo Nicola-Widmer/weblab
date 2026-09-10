@@ -2,7 +2,7 @@
 
 import { type Client, type ClientMeta, formDataBodySerializer, type Options as Options2, type RequestResult, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthControllerMeData, AuthControllerMeResponses, AuthControllerRegisterData, AuthControllerRegisterResponses, AuthControllerSignInData, AuthControllerSignInResponses, AuthControllerSignOutData, AuthControllerSignOutResponses, PlaylistsControllerAddEntryData, PlaylistsControllerAddEntryResponses, PlaylistsControllerCreateData, PlaylistsControllerCreateResponses, PlaylistsControllerGetData, PlaylistsControllerGetResponses, PlaylistsControllerListData, PlaylistsControllerListResponses, PlaylistsControllerRemoveData, PlaylistsControllerRemoveEntryData, PlaylistsControllerRemoveEntryResponses, PlaylistsControllerRemoveResponses, PlaylistsControllerRenameData, PlaylistsControllerRenameResponses, PlaylistsControllerReorderData, PlaylistsControllerReorderResponses, SongsControllerAudioData, SongsControllerAudioResponses, SongsControllerCoverData, SongsControllerCoverResponses, SongsControllerGetData, SongsControllerGetResponses, SongsControllerListData, SongsControllerListResponses, SongsControllerRemoveData, SongsControllerRemoveResponses, SongsControllerRetagData, SongsControllerRetagResponses, SongsControllerUploadData, SongsControllerUploadResponses } from './types.gen';
+import type { AuthControllerMeData, AuthControllerMeResponses, PlaylistsControllerAddEntryData, PlaylistsControllerAddEntryResponses, PlaylistsControllerCreateData, PlaylistsControllerCreateResponses, PlaylistsControllerGetData, PlaylistsControllerGetResponses, PlaylistsControllerListData, PlaylistsControllerListResponses, PlaylistsControllerRemoveData, PlaylistsControllerRemoveEntryData, PlaylistsControllerRemoveEntryResponses, PlaylistsControllerRemoveResponses, PlaylistsControllerRenameData, PlaylistsControllerRenameResponses, PlaylistsControllerReorderData, PlaylistsControllerReorderResponses, SongsControllerAudioData, SongsControllerAudioResponses, SongsControllerCoverData, SongsControllerCoverResponses, SongsControllerGetData, SongsControllerGetResponses, SongsControllerListData, SongsControllerListResponses, SongsControllerRemoveData, SongsControllerRemoveResponses, SongsControllerRetagData, SongsControllerRetagResponses, SongsControllerUploadData, SongsControllerUploadResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -18,27 +18,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
 
-export const authControllerRegister = <ThrowOnError extends boolean = false>(options: Options<AuthControllerRegisterData, ThrowOnError>): RequestResult<AuthControllerRegisterResponses, unknown, ThrowOnError> => (options.client ?? client).post<AuthControllerRegisterResponses, unknown, ThrowOnError>({
-    url: '/auth/register',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-export const authControllerSignIn = <ThrowOnError extends boolean = false>(options: Options<AuthControllerSignInData, ThrowOnError>): RequestResult<AuthControllerSignInResponses, unknown, ThrowOnError> => (options.client ?? client).post<AuthControllerSignInResponses, unknown, ThrowOnError>({
-    url: '/auth/sign-in',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-export const authControllerSignOut = <ThrowOnError extends boolean = false>(options: Options<AuthControllerSignOutData, ThrowOnError>): RequestResult<AuthControllerSignOutResponses, unknown, ThrowOnError> => (options.client ?? client).post<AuthControllerSignOutResponses, unknown, ThrowOnError>({ url: '/auth/sign-out', ...options });
-
-export const authControllerMe = <ThrowOnError extends boolean = false>(options: Options<AuthControllerMeData, ThrowOnError>): RequestResult<AuthControllerMeResponses, unknown, ThrowOnError> => (options.client ?? client).get<AuthControllerMeResponses, unknown, ThrowOnError>({ url: '/auth/me', ...options });
+export const authControllerMe = <ThrowOnError extends boolean = false>(options?: Options<AuthControllerMeData, ThrowOnError>): RequestResult<AuthControllerMeResponses, unknown, ThrowOnError> => (options?.client ?? client).get<AuthControllerMeResponses, unknown, ThrowOnError>({ url: '/auth/me', ...options });
 
 export const songsControllerList = <ThrowOnError extends boolean = false>(options?: Options<SongsControllerListData, ThrowOnError>): RequestResult<SongsControllerListResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SongsControllerListResponses, unknown, ThrowOnError>({ url: '/songs', ...options });
 

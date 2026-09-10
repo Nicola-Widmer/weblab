@@ -33,9 +33,12 @@ docker compose up
 
 Then open **https://localhost:8443** (self-signed cert — your browser warns
 once; proceed). nginx serves the SPA and proxies `/api` to the NestJS API
-container; Postgres and the uploads volume come up with it. The API runs
-migrations on start. Auth is disabled by default — one implicit local user owns
-everything ([ADR-0005](Documentation/adr/0005-session-cookie-auth.typ)).
+container; Postgres, Keycloak (with its own database) and the uploads volume
+come up with it. The API runs migrations on start. Auth is on by default
+(`AUTH_ENABLED=true`) — you are redirected to Keycloak to sign in or register
+(dev user `dev` / `dev`); set `AUTH_ENABLED=false` to skip Keycloak and run as a
+single implicit local user
+([ADR-0005](Documentation/adr/0005-session-cookie-auth.typ)).
 
 Optional S3-compatible storage (runs MinIO):
 

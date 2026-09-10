@@ -32,9 +32,11 @@
    `FileStorage` port (local filesystem default, S3-compatible optional).],
   [#adrlink("0004-metadata-postgres-blob-storage-port")],
   [Per-user privacy],
-  [*Server-side session-cookie auth*; bcrypt password hashes; ownership
-   enforced inside use cases (every repository query scoped by `ownerId`),
-   with an `AUTH_ENABLED=false` mode backed by one implicit local user.],
+  [*OIDC auth delegated to Keycloak* (own container + `keycloak-db`); the
+   backend is a confidential client with a backend-for-frontend session cookie
+   (tokens held server-side); ownership enforced inside use cases (every
+   repository query scoped by `ownerId`), with an `AUTH_ENABLED=false` mode
+   backed by one implicit local user.],
   [#adrlink("0005-session-cookie-auth")],
   [One-command operation],
   [Everything is a Compose service; 12-factor env config; migrations run on API

@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LucideDisc3 } from '@lucide/angular';
 import { PlayerComponent } from './features/player/player.component';
+import { UserMenuComponent } from './auth/user-menu.component';
 
 @Component({
   imports: [
@@ -10,6 +11,7 @@ import { PlayerComponent } from './features/player/player.component';
     RouterLink,
     RouterLinkActive,
     PlayerComponent,
+    UserMenuComponent,
     TranslatePipe,
     LucideDisc3,
   ],
