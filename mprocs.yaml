@@ -1,0 +1,49 @@
+# One-command native dev environment.  Run:  pnpm dev   (or: npx mprocs)
+#
+#   db        Postgres 17 via `docker compose up db`
+#             (docker-compose.override.yml publishes it on 127.0.0.1:5432)
+#   keycloak  OIDC provider via `docker compose up keycloak` — pulls in its own
+#             `keycloak-db` (compose depends_on), imports ./keycloak/import on
+#             first boot, admin console on :8081. Takes ~20-30s to be ready.
+#   api       NestJS on :3000 — `nest start --watch`; runs migrations on boot,
+#             STORAGE_DRIVER=local so uploads persist to ./uploads. AUTH_ENABLED
+#             here points at the native Keycloak (issuer/internal both :8081,
+#             redirect back to the :4200 ng-serve origin — already registered on
+#             the `wmp-api` client in the imported realm).
+#   web       Angular on :4200 — `ng serve`; proxies /api -> :3000
+#
+# TUI keys:  <up>/<down> select · r restart · s stop · a start · x kill · q quit
+# On a cold first run the API may log a DB error before Postgres is ready, or a
+# JWKS error before Keycloak is ready — select it and press `r`.
+#
+# To skip OIDC (implicit local user owns everything), stop the `keycloak` proc
+# and set AUTH_ENABLED to "false" on `api` below.
+
+procs:
+  db:
+    cmd: ["docker", "compose", "up", "db"]
+
+  keycloak:
+    cmd: ["docker", "compose", "up", "keycloak"]
+
+  api:
+    cwd: backend
+    shell: "sleep 3 && pnpm dev"
+    env:
+      DATABASE_URL: "postgres://wmp:wmp@localhost:5432/wmp"
+      STORAGE_DRIVER: "local"
+      STORAGE_LOCAL_DIR: "../uploads"
+      PORT: "3000"
+      AUTH_ENABLED: "true"
+      OIDC_ISSUER_URL: "http://localhost:8081/realms/wmp"
+      OIDC_INTERNAL_URL: "http://localhost:8081/realms/wmp"
+      OIDC_AUDIENCE: "wmp-api"
+      OIDC_CLIENT_ID: "wmp-api"
+      OIDC_CLIENT_SECRET: "dev-secret-change-me"
+      OIDC_REDIRECT_URI: "http://localhost:4200/api/auth/callback"
+      OIDC_POST_LOGIN_REDIRECT: "/"
+      SESSION_COOKIE_SECURE: "false"
+
+  web:
+    cwd: frontend
+    cmd: ["pnpm", "start"]
