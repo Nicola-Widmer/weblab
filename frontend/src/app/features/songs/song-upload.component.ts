@@ -55,6 +55,7 @@ const ACCEPTED_TYPE = 'audio/mpeg';
         accept="audio/mpeg,.mp3"
         multiple
         hidden
+        [attr.aria-label]="'songs.upload.button' | translate"
         (change)="onPick($event)"
       />
     </div>
