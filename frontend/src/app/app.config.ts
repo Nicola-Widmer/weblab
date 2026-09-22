@@ -12,6 +12,26 @@ import { routes } from './app.routes';
 import { installAuthRedirect } from './auth/auth-redirect';
 import { provideOptimus } from '@openng/optimus-ui/config';
 import Aura from '@openng/optimus-ui-themes/aura';
+import { definePreset } from '@openng/optimus-ui-themes';
+
+/** Aura with `stone` as the primary palette. */
+const AppPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      50: '{stone.50}',
+      100: '{stone.100}',
+      200: '{stone.200}',
+      300: '{stone.300}',
+      400: '{stone.400}',
+      500: '{stone.500}',
+      600: '{stone.600}',
+      700: '{stone.700}',
+      800: '{stone.800}',
+      900: '{stone.900}',
+      950: '{stone.950}',
+    },
+  },
+});
 
 /**
  * Zoneless (see `main.ts` / no zone.js). Server state is owned by TanStack
@@ -30,7 +50,7 @@ export const appConfig: ApplicationConfig = {
         },
       }),
     ),
-    provideOptimus({ theme: { preset: Aura } }),
+    provideOptimus({ theme: { preset: AppPreset } }),
     provideHttpClient(),
     provideTranslateService({
       lang: 'en',
