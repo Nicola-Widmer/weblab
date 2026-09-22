@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { eq, notInArray } from 'drizzle-orm';
 import type { Db } from '../../shared/db/client';
 import { DB } from '../../shared/db/database.module';
 import {
   playlistEntries as entriesTable,
   playlists as playlistsTable,
+  songs as songsTable,
   type PlaylistEntryRow,
   type PlaylistRow,
 } from '../../shared/db/schema';
@@ -80,20 +81,17 @@ export class DrizzlePlaylistRepository extends PlaylistRepository {
     await this.db.delete(playlistsTable).where(eq(playlistsTable.id, id));
   }
 
-  /** Not owner-scoped — serves the `SongDeleted` reaction, not a user request. */
-  async containingSong(songId: Uuid): Promise<Playlist[]> {
-    const hits = await this.db
-      .selectDistinct({ id: entriesTable.playlistId })
-      .from(entriesTable)
-      .where(eq(entriesTable.songId, songId));
-    if (hits.length === 0) return [];
+  async removeSongEverywhere(songId: Uuid): Promise<void> {
+    await this.db.delete(entriesTable).where(eq(entriesTable.songId, songId));
+  }
 
-    const ids = hits.map((h) => h.id);
-    const rows = await this.db.query.playlists.findMany({
-      where: (p, { inArray }) => inArray(p.id, ids),
-      with: { entries: { orderBy: (e, { asc }) => asc(e.position) } },
-    });
-    return rows.map(toDomain);
+  async removeOrphanedEntries(): Promise<void> {
+    await this.db.delete(entriesTable).where(
+      notInArray(
+        entriesTable.songId,
+        this.db.select({ id: songsTable.id }).from(songsTable),
+      ),
+    );
   }
 }
 

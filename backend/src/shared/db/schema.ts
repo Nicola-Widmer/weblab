@@ -114,7 +114,7 @@ export const playlistEntries = pgTable(
   },
   (t) => [
     index('playlist_entries_playlist_id_idx').on(t.playlistId),
-    index('playlist_entries_song_id_idx').on(t.songId), // containingSong + sweep
+    index('playlist_entries_song_id_idx').on(t.songId), // SongDeleted reaction + sweep
   ],
 );
 

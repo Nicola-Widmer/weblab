@@ -8,8 +8,15 @@ export abstract class PlaylistRepository {
   abstract listByOwner(ownerId: Uuid): Promise<Playlist[]>;
   abstract remove(id: Uuid): Promise<void>;
   /**
-   * Every playlist that currently contains the song. Not owner-scoped: it serves
-   * the `SongDeleted` reaction, not a user request.
+   * Delete every entry referencing `songId`, across every playlist, in one
+   * statement — the `SongDeleted` reaction, without loading and re-saving each
+   * affected playlist aggregate.
    */
-  abstract containingSong(songId: Uuid): Promise<Playlist[]>;
+  abstract removeSongEverywhere(songId: Uuid): Promise<void>;
+
+  /**
+   * Delete every entry whose song no longer exists. The reconciliation-sweep
+   * backstop (ADR-0002) for a `SongDeleted` reaction that failed or was dropped.
+   */
+  abstract removeOrphanedEntries(): Promise<void>;
 }

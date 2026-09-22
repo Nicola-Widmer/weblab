@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Clock } from '../../shared/application/clock';
 import { IdGenerator } from '../../shared/application/id-generator';
 import { Uuid } from '../../shared/domain/uuid';
@@ -25,11 +25,8 @@ export class PlaylistsService {
   }
 
   async create(ownerId: Uuid, name: string): Promise<Playlist> {
-    const playlist = Playlist.create(
-      this.ids.next(),
-      ownerId,
-      name,
-      this.clock.now(),
+    const playlist = withBadRequestOnError(() =>
+      Playlist.create(this.ids.next(), ownerId, name, this.clock.now()),
     );
     await this.playlists.save(playlist);
     return playlist;
@@ -37,7 +34,7 @@ export class PlaylistsService {
 
   async rename(ownerId: Uuid, id: Uuid, name: string): Promise<Playlist> {
     const playlist = await this.get(ownerId, id);
-    playlist.rename(name);
+    withBadRequestOnError(() => playlist.rename(name));
     await this.playlists.save(playlist);
     return playlist;
   }
@@ -62,7 +59,7 @@ export class PlaylistsService {
     orderedEntryIds: Uuid[],
   ): Promise<Playlist> {
     const playlist = await this.get(ownerId, id);
-    playlist.reorder(orderedEntryIds);
+    withBadRequestOnError(() => playlist.reorder(orderedEntryIds));
     await this.playlists.save(playlist);
     return playlist;
   }
@@ -77,9 +74,16 @@ export class PlaylistsService {
    * it. Idempotent — safe to re-run from the reconciliation sweep.
    */
   async dropSongEverywhere(songId: Uuid): Promise<void> {
-    for (const playlist of await this.playlists.containingSong(songId)) {
-      playlist.removeAllOccurrences(songId);
-      await this.playlists.save(playlist);
-    }
+    await this.playlists.removeSongEverywhere(songId);
+  }
+}
+
+/** Run `fn`, turning a domain validation `Error` into an HTTP 400. */
+function withBadRequestOnError<T>(fn: () => T): T {
+  try {
+    return fn();
+  } catch (err) {
+    if (err instanceof Error) throw new BadRequestException(err.message);
+    throw err;
   }
 }
