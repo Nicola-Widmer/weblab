@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { injectMutation, injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
-import type { PlaylistDto, SongDto } from '../../api';
+import type { PlaylistDto, PlaylistEntryDto, SongDto } from '../../api';
 import {
   playlistsControllerAddEntryMutation,
   playlistsControllerGetQueryKey,
   playlistsControllerListOptions,
   playlistsControllerListQueryKey,
   playlistsControllerRemoveEntryMutation,
+  playlistsControllerReorderMutation,
   songsControllerListQueryKey,
   songsControllerRemoveMutation,
 } from '../../api/@tanstack/angular-query-experimental.gen';
@@ -38,17 +39,22 @@ import { SongListComponent, type SongRow } from './song-list.component';
       [isError]="isError()"
       [playlists]="playlists.data() ?? []"
       [variant]="variant()"
+      [reorderable]="reorderable()"
       (play)="play($event)"
       (edit)="editing.set($event)"
       (delete)="remove($event)"
       (removeFromPlaylist)="removeFromPlaylist($event)"
       (addToPlaylist)="addToPlaylist($event)"
+      (reorder)="reorderEntries($event)"
     />
     @if (removal.isError()) {
       <p>{{ 'songs.delete.error' | translate }}</p>
     }
     @if (entryRemoval.isError()) {
       <p>{{ 'songs.removeFromPlaylist.error' | translate }}</p>
+    }
+    @if (reordering.isError()) {
+      <p>{{ 'songs.reorder.error' | translate }}</p>
     }
     <app-song-edit-dialog [song]="editing()" (closed)="editing.set(null)" />
   `,
@@ -71,6 +77,9 @@ export class SongListPanelComponent {
   protected readonly variant = computed<'library' | 'playlist'>(() =>
     this.playlist() ? 'playlist' : 'library',
   );
+
+  /** Drag / "Move Up/Down" only make sense in a playlist with something to sort. */
+  protected readonly reorderable = computed(() => !!this.playlist() && this.rows().length >= 2);
 
   /** Display order is also the playback queue. */
   private readonly queue = computed<SongDto[]>(() => this.rows().map((r) => r.song));
@@ -105,6 +114,46 @@ export class SongListPanelComponent {
       });
     },
   }));
+
+  /**
+   * Persist a new entry order. Optimistically rewrites the cached playlist —
+   * both the array order and each entry's `position`, since the detail view
+   * re-sorts rows on `position` — then rolls back on error.
+   */
+  protected readonly reordering = injectMutation(() => ({
+    ...playlistsControllerReorderMutation(),
+    onMutate: async (variables) => {
+      const key = playlistsControllerGetQueryKey({ path: { id: variables.path.id } });
+      await this.queryClient.cancelQueries({ queryKey: key });
+      const previous = this.queryClient.getQueryData<PlaylistDto>(key);
+      if (previous) {
+        const byId = new Map(previous.entries.map((e) => [e.id, e]));
+        const entries = variables.body.entryIds
+          .map((id, position): PlaylistEntryDto | undefined => {
+            const entry = byId.get(id);
+            return entry ? { ...entry, position } : undefined;
+          })
+          .filter((e): e is PlaylistEntryDto => !!e);
+        this.queryClient.setQueryData<PlaylistDto>(key, { ...previous, entries });
+      }
+      return { key, previous };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) this.queryClient.setQueryData(context.key, context.previous);
+    },
+    onSettled: (_data, _error, variables) => {
+      this.queryClient.invalidateQueries({
+        queryKey: playlistsControllerGetQueryKey({ path: { id: variables.path.id } }),
+      });
+      this.queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
+    },
+  }));
+
+  reorderEntries(entryIds: string[]): void {
+    const playlist = this.playlist();
+    if (!playlist) return;
+    this.reordering.mutate({ path: { id: playlist.id }, body: { entryIds } });
+  }
 
   play(song: SongDto): void {
     const queue = this.queue();

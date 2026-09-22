@@ -1,3 +1,4 @@
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DataView } from '@openng/optimus-ui/dataview';
@@ -22,11 +23,23 @@ export interface SongRow {
  * mirror `SongRowComponent`). While pending it defers to `SongListSkeletonComponent`.
  * Fetching, deletion and playback live in `SongsPageComponent`; this component
  * only forwards row events upward.
+ *
+ * When `reorderable` is set (playlist detail), the `p-dataview` body is swapped
+ * for a `cdkDropList`: rows drag by the whole row (grip badge on hover, long-
+ * press on touch) and the `⋯` menu gains "Move Up" / "Move Down". Both paths
+ * emit the new entry-id order through `reorder`; the smart wrapper persists it.
  */
 @Component({
   selector: 'app-song-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DataView, SongRowComponent, SongListSkeletonComponent, TranslatePipe],
+  imports: [
+    DataView,
+    SongRowComponent,
+    SongListSkeletonComponent,
+    TranslatePipe,
+    CdkDropList,
+    CdkDrag,
+  ],
   template: `
     @if (isPending()) {
       <app-song-list-skeleton />
@@ -41,33 +54,63 @@ export interface SongRow {
         >
           <span></span>
           <div
-            class="grid grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_minmax(0,1.4fr)_auto_2.75rem] items-center gap-3"
+            class="grid grid-cols-[minmax(0,1fr)_auto_2.75rem] items-center gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_minmax(0,1.4fr)_auto_2.75rem]"
           >
             <span>{{ 'songs.list.columns.song' | translate }}</span>
-            <span>{{ 'songs.list.columns.artist' | translate }}</span>
-            <span>{{ 'songs.list.columns.album' | translate }}</span>
+            <span class="hidden sm:block">{{ 'songs.list.columns.artist' | translate }}</span>
+            <span class="hidden sm:block">{{ 'songs.list.columns.album' | translate }}</span>
             <span class="text-right">{{ 'songs.list.columns.time' | translate }}</span>
             <span></span>
           </div>
         </div>
-        <p-dataview [value]="rows()" [emptyMessage]="'songs.list.empty' | translate">
-          <ng-template #list let-items>
-            @for (row of items; track row.entryId ?? row.song.id; let first = $first) {
-              <app-song-row
-                [song]="row.song"
-                [entryId]="row.entryId"
-                [firstRow]="first"
-                [playlists]="playlists()"
-                [variant]="variant()"
-                (play)="play.emit($event)"
-                (edit)="edit.emit($event)"
-                (delete)="delete.emit($event)"
-                (removeFromPlaylist)="removeFromPlaylist.emit($event)"
-                (addToPlaylist)="addToPlaylist.emit($event)"
-              />
+
+        @if (reorderable()) {
+          <div cdkDropList (cdkDropListDropped)="onDrop($event)">
+            @for (
+              row of rows();
+              track row.entryId ?? row.song.id;
+              let first = $first;
+              let last = $last
+            ) {
+              <div cdkDrag [cdkDragStartDelay]="dragStartDelay" class="rounded">
+                <app-song-row
+                  [song]="row.song"
+                  [entryId]="row.entryId"
+                  [firstRow]="first"
+                  [lastRow]="last"
+                  [reorderable]="true"
+                  [playlists]="playlists()"
+                  [variant]="variant()"
+                  (play)="play.emit($event)"
+                  (edit)="edit.emit($event)"
+                  (delete)="delete.emit($event)"
+                  (move)="onMove($event)"
+                  (removeFromPlaylist)="removeFromPlaylist.emit($event)"
+                  (addToPlaylist)="addToPlaylist.emit($event)"
+                />
+              </div>
             }
-          </ng-template>
-        </p-dataview>
+          </div>
+        } @else {
+          <p-dataview [value]="rows()" [emptyMessage]="'songs.list.empty' | translate">
+            <ng-template #list let-items>
+              @for (row of items; track row.entryId ?? row.song.id; let first = $first) {
+                <app-song-row
+                  [song]="row.song"
+                  [entryId]="row.entryId"
+                  [firstRow]="first"
+                  [playlists]="playlists()"
+                  [variant]="variant()"
+                  (play)="play.emit($event)"
+                  (edit)="edit.emit($event)"
+                  (delete)="delete.emit($event)"
+                  (removeFromPlaylist)="removeFromPlaylist.emit($event)"
+                  (addToPlaylist)="addToPlaylist.emit($event)"
+                />
+              }
+            </ng-template>
+          </p-dataview>
+        }
       </div>
     }
   `,
@@ -80,9 +123,38 @@ export class SongListComponent {
   readonly playlists = input<PlaylistDto[]>([]);
   /** Forwarded to each row's menu — see `SongMenuComponent.variant`. */
   readonly variant = input<'library' | 'playlist'>('library');
+  /** Playlist detail only: enable drag + "Move Up/Down" reordering. */
+  readonly reorderable = input(false);
   readonly play = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
   readonly removeFromPlaylist = output<{ song: SongDto; entryId: string }>();
   readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
+  /** New order as entry ids, top to bottom, after a drag or a menu move. */
+  readonly reorder = output<string[]>();
+
+  /** Touch needs a hold before dragging so vertical scroll still works. */
+  protected readonly dragStartDelay = { touch: 200, mouse: 0 };
+
+  protected onDrop(event: CdkDragDrop<unknown>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    const next = this.rows().slice();
+    moveItemInArray(next, event.previousIndex, event.currentIndex);
+    this.emitOrder(next);
+  }
+
+  protected onMove({ entryId, direction }: { entryId: string; direction: -1 | 1 }): void {
+    const rows = this.rows();
+    const from = rows.findIndex((r) => r.entryId === entryId);
+    const to = from + direction;
+    if (from < 0 || to < 0 || to >= rows.length) return;
+    const next = rows.slice();
+    moveItemInArray(next, from, to);
+    this.emitOrder(next);
+  }
+
+  private emitOrder(rows: SongRow[]): void {
+    const ids = rows.map((r) => r.entryId).filter((id): id is string => !!id);
+    if (ids.length === rows.length) this.reorder.emit(ids);
+  }
 }

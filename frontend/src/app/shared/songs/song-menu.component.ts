@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TranslatePipe, translate } from '@ngx-translate/core';
 import {
+  LucideArrowDown,
+  LucideArrowUp,
   LucideEllipsis,
   LucideListPlus,
   LucidePencil,
@@ -25,6 +27,8 @@ import type { PlaylistDto, SongDto } from '../../api';
     Button,
     TieredMenu,
     TranslatePipe,
+    LucideArrowDown,
+    LucideArrowUp,
     LucideEllipsis,
     LucideListPlus,
     LucidePencil,
@@ -53,6 +57,12 @@ import type { PlaylistDto, SongDto } from '../../api';
             @case ('edit') {
               <svg lucidePencil class="size-4"></svg>
             }
+            @case ('move-up') {
+              <svg lucideArrowUp class="size-4"></svg>
+            }
+            @case ('move-down') {
+              <svg lucideArrowDown class="size-4"></svg>
+            }
             @case ('add') {
               <svg lucideListPlus class="size-4"></svg>
             }
@@ -78,15 +88,24 @@ export class SongMenuComponent {
   readonly variant = input<'library' | 'playlist'>('library');
   /** The playlist entry this menu acts on, in the `'playlist'` variant. */
   readonly entryId = input<string>();
+  /** When true (playlist variant), offer "Move Up" / "Move Down". */
+  readonly reorderable = input(false);
+  /** Disables "Move Up" — this is the first row. */
+  readonly firstRow = input(false);
+  /** Disables "Move Down" — this is the last row. */
+  readonly lastRow = input(false);
   readonly play = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
+  readonly move = output<{ entryId: string; direction: -1 | 1 }>();
   readonly removeFromPlaylist = output<{ song: SongDto; entryId: string }>();
   readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
 
   private readonly playLabel = translate('songs.row.play');
   private readonly editLabel = translate('songs.row.edit');
   private readonly deleteLabel = translate('songs.row.delete');
+  private readonly moveUpLabel = translate('songs.row.moveUp');
+  private readonly moveDownLabel = translate('songs.row.moveDown');
   private readonly removeFromPlaylistLabel = translate('songs.row.removeFromPlaylist');
   private readonly addToPlaylistLabel = translate('songs.row.addToPlaylist');
   private readonly noPlaylistsLabel = translate('songs.row.noPlaylists');
@@ -94,14 +113,30 @@ export class SongMenuComponent {
   protected readonly items = computed<MenuItem[]>(() => {
     const playlists = this.playlists();
     const entryId = this.entryId();
+    const reorderItems: MenuItem[] =
+      this.reorderable() && this.variant() === 'playlist' && entryId
+        ? [
+            {
+              label: `${this.moveUpLabel()}`,
+              icon: 'move-up',
+              disabled: this.firstRow(),
+              command: () => this.move.emit({ entryId, direction: -1 }),
+            },
+            {
+              label: `${this.moveDownLabel()}`,
+              icon: 'move-down',
+              disabled: this.lastRow(),
+              command: () => this.move.emit({ entryId, direction: 1 }),
+            },
+          ]
+        : [];
     const removeItem: MenuItem =
       this.variant() === 'playlist'
         ? {
             label: `${this.removeFromPlaylistLabel()}`,
             icon: 'trash',
             disabled: !entryId,
-            command: () =>
-              entryId && this.removeFromPlaylist.emit({ song: this.song(), entryId }),
+            command: () => entryId && this.removeFromPlaylist.emit({ song: this.song(), entryId }),
           }
         : {
             label: `${this.deleteLabel()}`,
@@ -119,6 +154,7 @@ export class SongMenuComponent {
         icon: 'edit',
         command: () => this.edit.emit(this.song()),
       },
+      ...reorderItems,
       {
         label: `${this.addToPlaylistLabel()}`,
         icon: 'add',
