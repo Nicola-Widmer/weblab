@@ -89,6 +89,12 @@ export class SessionAuthGuard implements CanActivate {
       if (current && current.isValid(now) && !current.accessTokenExpired(now)) {
         return current;
       }
+      // If the stored refresh token no longer matches the one we tried, a
+      // concurrent refresh is in flight or just landed — leave the row alone
+      // rather than deleting a session another request may still be saving.
+      if (current && current.refreshToken !== session.refreshToken) {
+        throw new UnauthorizedException('Session could not be refreshed');
+      }
       await this.sessions.deleteById(session.id);
       throw new UnauthorizedException('Session could not be refreshed');
     }
