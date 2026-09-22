@@ -26,6 +26,7 @@ decision and reference it from section 9.
 | 0004 | PostgreSQL for metadata; audio bytes behind a `FileStorage` port (local FS default, S3 optional) | Accepted |
 | 0005 | OIDC auth delegated to Keycloak (own container + database); ownership enforced inside use cases | Accepted |
 | 0006 | OpenAPI-first typed frontend client (`@nestjs/swagger` → `openapi.json` → HeyApi); TanStack Query for server state | Accepted |
+| 0007 | Frontend presentational/container split; output events capped at two forwarding hops; cross-cutting client state in an injectable signal service | Accepted |
 
 ## Building the PDFs
 

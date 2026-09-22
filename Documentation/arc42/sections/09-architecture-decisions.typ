@@ -36,4 +36,8 @@ back here.
   [#adrlink("0006-openapi-typed-client-tanstack-query")],
   [OpenAPI-first typed frontend client: `@nestjs/swagger` → `openapi.json` →
    HeyApi; TanStack Query for server state.], [Accepted],
+  [#adrlink("0007-frontend-component-communication")],
+  [Presentational/container split; output events capped at two forwarding
+   hops before a smart component; cross-cutting client state (playback) in an
+   injectable signal service instead.], [Accepted],
 )
