@@ -72,7 +72,7 @@ committed lockfile that contains a younger version.
 
 #mermaid(```mermaid
 flowchart LR
-  E2E["E2E — 6 tests"]
+  E2E["E2E — 8 tests"]
   A11Y["Accessibility — 3 pages"]
   INT["Backend integration — 37 tests"]
   UNIT["Unit — 35 backend + 2 frontend"]
@@ -88,9 +88,10 @@ flowchart LR
    identity, user provisioning, the `SongDeleted` flow.],
   [Frontend unit], [Vitest (`ng test`)], [2 tests, 1 file], [App shell
    renders.],
-  [E2E], [Playwright], [6 tests, 4 files], [Login redirect, navigation,
-   upload/edit/delete song, reject non-MP3, playlist lifecycle, playback.
-   Full Compose stack + real Keycloak.],
+  [E2E], [Playwright], [8 tests, 5 files], [Login redirect, navigation,
+   upload/edit/delete song, reject non-MP3, playlist lifecycle, playback,
+   song menu (add to playlist twice, Move Up/Down, Play), deleting a song
+   removes it from playlists. Full Compose stack + real Keycloak.],
   [Accessibility], [pa11y-ci], [3 pages], [WCAG 2 AA on songs, playlists,
    playlist detail.],
 )
@@ -98,9 +99,9 @@ flowchart LR
 #tbl(columns: (auto, auto, auto, auto, auto),
   [Coverage (2026-09-23)], [Lines], [Statements], [Branches], [Functions],
   [Backend — unit + integration], [85.8 %], [85.8 %], [87.5 %], [84.1 %],
-  [Backend — E2E], [84.6 %], [84.6 %], [67.9 %], [81.0 %],
+  [Backend — E2E], [85.7 %], [85.7 %], [68.9 %], [83.0 %],
   [Frontend — unit], [30.4 %], [29.5 %], [34.1 %], [14.8 %],
-  [Frontend — E2E], [67.9 %], [63.6 %], [43.0 %], [49.3 %],
+  [Frontend — E2E], [82.9 %], [78.2 %], [56.7 %], [71.2 %],
 )
 
 Scope: hand-written code in `backend/src/` and `frontend/src/app/`. Not
@@ -123,5 +124,6 @@ flowchart LR
 )
 
 The coverage build turns off Angular's optimizer, otherwise inlined code can't
-be mapped back to its source file. Backend numbers are high even for E2E: Node counts code that runs at startup
+be mapped back to its source file. The Playwright fixture saves coverage before
+every `goto`/`reload`, because a full page load discards the old counts. Backend numbers are high even for E2E: Node counts code that runs at startup
 (module loading, DI wiring) as covered.

@@ -34,7 +34,7 @@ const isAppSource = (path: string) =>
 export const coverageOptions: CoverageReportOptions = {
   name: 'Frontend E2E coverage',
   outputDir: './coverage-e2e',
-  reports: ['console-summary', 'json-summary', 'v8'],
+  reports: ['console-summary', 'json-summary', 'lcovonly', 'v8'],
   // Only the SPA's own bundles — not Keycloak's login-page scripts.
   entryFilter: (entry) => entry.url.startsWith(baseUrl) && entry.url.endsWith('.js'),
   sourceFilter: (path) => isAppSource(path),
@@ -48,9 +48,26 @@ export const test = base.extend<{ coverage: void }>({
   coverage: [
     async ({ page }, use) => {
       if (!coverageEnabled) return use();
-      await page.coverage.startJSCoverage({ resetOnNavigation: false });
+      const start = () => page.coverage.startJSCoverage({ resetOnNavigation: false });
+      const flush = async () => MCR(coverageOptions).add(await page.coverage.stopJSCoverage());
+
+      // A full navigation drops the old document's scripts, and their counts
+      // with them. Flush before every goto/reload so nothing is lost.
+      const { goto, reload } = page;
+      page.goto = async (...args) => {
+        await flush();
+        await start();
+        return goto.apply(page, args);
+      };
+      page.reload = async (...args) => {
+        await flush();
+        await start();
+        return reload.apply(page, args);
+      };
+
+      await start();
       await use();
-      await MCR(coverageOptions).add(await page.coverage.stopJSCoverage());
+      await flush();
     },
     { auto: true },
   ],

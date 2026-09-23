@@ -34,3 +34,42 @@ export async function deleteSong(page: Page, title: string): Promise<void> {
   await page.getByRole('menuitem', { name: 'Delete' }).click();
   await expect(songRow(page, title)).toBeHidden();
 }
+
+/** Creates a playlist from `/playlists` and returns its card. */
+export async function createPlaylist(page: Page, name: string): Promise<void> {
+  await page.goto('/playlists');
+  await page.getByRole('button', { name: 'New playlist' }).click();
+  await page.getByLabel('Name', { exact: true }).fill(name);
+  await page.getByRole('button', { name: 'Create' }).click();
+  await expect(page.locator('.group', { hasText: name })).toBeVisible();
+}
+
+/** Opens the playlist `name` from `/playlists`. */
+export async function openPlaylist(page: Page, name: string): Promise<void> {
+  await page.goto('/playlists');
+  await page.locator('.group', { hasText: name }).getByRole('link').click();
+  await expect(page.getByRole('heading', { name })).toBeVisible();
+}
+
+/** Deletes the playlist `name` from `/playlists`, accepting the confirm dialog. */
+export async function deletePlaylist(page: Page, name: string): Promise<void> {
+  await page.goto('/playlists');
+  page.once('dialog', (dialog) => dialog.accept());
+  const card = page.locator('.group', { hasText: name });
+  await card.getByRole('button', { name: 'Delete playlist' }).click();
+  await expect(card).toBeHidden();
+}
+
+/** Opens the `⋯` menu of the `index`-th row titled `title` and picks `item`. */
+export async function rowMenu(page: Page, title: string, item: string, index = 0): Promise<void> {
+  await songRow(page, title).nth(index).getByRole('button', { name: 'More actions' }).click();
+  await page.getByRole('menuitem', { name: item, exact: true }).click();
+}
+
+/** Titles of the visible song rows, top to bottom. */
+export async function rowTitles(page: Page): Promise<string[]> {
+  const labels = await page.locator('.group button[aria-label^="Play "]').evaluateAll((els) =>
+    els.map((el) => el.getAttribute('aria-label') ?? ''),
+  );
+  return labels.map((label) => label.replace(/^Play /, ''));
+}
