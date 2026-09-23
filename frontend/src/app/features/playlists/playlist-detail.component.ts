@@ -76,7 +76,7 @@ import { PlaylistDetailSkeletonComponent } from './ui/playlist-detail-skeleton.c
     }
   `,
 })
-export class PlaylistDetailComponent {
+export default class PlaylistDetailComponent {
   /** Bound from the `:id` route param via `withComponentInputBinding()`. */
   readonly id = input.required<string>();
 

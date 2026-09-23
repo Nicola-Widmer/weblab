@@ -53,7 +53,10 @@ import { PlayerVolumeComponent } from './ui/player-volume.component';
       </div>
     </footer>
 
-    <app-player-drawer [visible]="expanded()" (visibleChange)="expanded.set($event)" />
+    <!-- Drawer (turntable, arc scrubber) stays out of the initial bundle -->
+    @defer (on idle) {
+      <app-player-drawer [visible]="expanded()" (visibleChange)="expanded.set($event)" />
+    }
   `,
 })
 export class PlayerComponent {

@@ -52,7 +52,7 @@ import { PlaylistGridComponent } from './ui/playlist-grid.component';
     <app-playlist-create-dialog [(open)]="creating" />
   `,
 })
-export class PlaylistsPageComponent {
+export default class PlaylistsPageComponent {
   private readonly queryClient = inject(QueryClient);
   private readonly translate = inject(TranslateService);
 

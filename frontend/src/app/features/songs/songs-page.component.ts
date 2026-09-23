@@ -27,7 +27,7 @@ import { SongUploadComponent } from './song-upload.component';
     </app-song-upload>
   `,
 })
-export class SongsPageComponent {
+export default class SongsPageComponent {
   protected readonly songs = injectQuery(() => songsControllerListOptions());
 
   protected readonly rows = computed<SongRow[]>(() =>
