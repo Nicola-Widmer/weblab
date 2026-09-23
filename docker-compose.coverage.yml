@@ -1,0 +1,15 @@
+# Overlay for the E2E coverage run (scripts/e2e-coverage.sh). Not for normal use:
+# the SPA is built with public source maps and the API records V8 coverage.
+services:
+  api:
+    environment:
+      NODE_V8_COVERAGE: /coverage
+      NODE_OPTIONS: --require /v8-coverage-hook.cjs
+    volumes:
+      - ./backend/coverage-e2e/raw:/coverage
+      - ./backend/scripts/v8-coverage-hook.cjs:/v8-coverage-hook.cjs:ro
+
+  web:
+    build:
+      args:
+        NG_CONFIG: production,coverage

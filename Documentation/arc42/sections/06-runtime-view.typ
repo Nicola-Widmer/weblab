@@ -1,86 +1,112 @@
-#import "../lib.typ": adrlink
+#import "../lib.typ": mermaid, adrlink
 
 #pagebreak(weak: true)
 
 = Runtime View
 
-Two scenarios: one that crosses the whole stack, one that stays inside the
-frontend and traces how far a single event actually travels
-(#link("../../adr/0007-frontend-component-communication.pdf")[ADR-0007]).
+== Play a song
 
-== Scenario: play a song from the library
+#mermaid(```mermaid
+sequenceDiagram
+  actor U as User
+  participant Row as SongRow
+  participant List as SongList
+  participant Panel as SongListPanel
+  participant PS as PlayerService
+  participant N as nginx
+  participant API as NestJS API
+  participant FS as FileStorage
+  U->>Row: click play
+  Row->>List: play(song)
+  List->>Panel: play(song)
+  Panel->>PS: play(song, queue)
+  PS->>N: GET /api/songs/{id}/audio (Range)
+  N->>API: proxy, no buffering
+  API->>FS: getRange(key, range)
+  FS-->>API: bytes
+  API-->>PS: 206 Partial Content
+  Note over PS: bar and drawer re-render from the same signals
+```)
 
-#table(
-  columns: (auto, 1fr),
-  inset: 6pt, stroke: 0.4pt + rgb("#cccccc"),
-  [Step], [What happens],
-  [1], [User clicks a row's play surface in `SongRowComponent` →
-   `play.emit(song)`.],
-  [2], [`SongListComponent` re-emits `play` unchanged (the one layout hop —
-   the row is reused in both the plain and drag-reorderable layouts).],
-  [3], [`SongListPanelComponent.play(song)` runs: the display order it was
-   given (`rows()`) becomes the playback queue, then
-   `PlayerService.play(song, queue)`.],
-  [4], [`PlayerService` sets the `<audio>` element's `src` to
-   `songAudioUrl(song.id)` (`/api/songs/:id/audio`) and calls `audio.play()`;
-   its `play`/`pause`/`timeupdate`/`loadedmetadata` listeners mirror the
-   element's real state into signals.],
-  [5], [The browser issues a *range-capable* GET for the audio file. nginx
-   proxies it to the API with buffering off
-   (#adrlink("0003-nginx-serves-frontend")); the API streams the bytes from
-   `FileStorage` (#adrlink("0004-metadata-postgres-blob-storage-port")),
-   honouring `Range` so `206 Partial Content` responses let the browser seek
-   without downloading the whole file.],
-  [6], [Every consumer of `PlayerService`'s signals — the sticky bottom bar
-   (`PlayerComponent`) and, if open, the expanded drawer
-   (`PlayerDrawerComponent`) — re-renders from the same source of truth with
-   no event passed between them; neither one owns or forwards playback
-   state, both just inject the service.],
-)
+`SongList` only forwards the event. `SongListPanel` adds the queue (the rows in
+display order), which only it knows. `PlayerService` keeps a copy of that
+queue, so opening another page doesn't change what plays next. See
+#adrlink("0007-frontend-component-communication") for why rows don't call the
+service directly.
 
-Note what *doesn't* happen: no component between the row and the panel knows
-what "play" means, and nothing downstream of the panel is told to re-emit
-anything — the chain in step 1–3 is exactly the two hops
-#link("../../adr/0007-frontend-component-communication.pdf")[ADR-0007] caps it
-at.
+== Remove a song from a playlist
 
-== Scenario: delete a song from a playlist view
+The deepest event chain: one emit, two unchanged re-emits, one owner.
 
-Traces the *deepest* event-forwarding chain in the app, end to end, and where
-it terminates.
+#mermaid(```mermaid
+sequenceDiagram
+  actor U as User
+  participant M as SongMenu
+  participant R as SongRow
+  participant L as SongList
+  participant P as SongListPanel
+  participant API as API
+  U->>M: "Remove from playlist"
+  M->>R: removeFromPlaylist
+  R->>L: re-emit
+  L->>P: re-emit
+  P->>API: DELETE /api/playlists/{id}/entries/{entryId}
+  API-->>P: 204
+  P->>P: invalidate playlist + playlists queries
+```)
 
-+ `SongMenuComponent` (the `⋯` menu) — user picks "Remove from Playlist" →
-  `removeFromPlaylist.emit({ song, entryId })`.
-+ `SongRowComponent` re-emits it unchanged (it owns the row's layout, not the
-  menu's choices).
-+ `SongListComponent` re-emits it unchanged again (it owns *which* rows are
-  shown — plain list or drag list — not what a row's menu did).
-+ `SongListPanelComponent.removeFromPlaylist(...)` — the chain ends here: a
-  `confirm()`, then `playlistsControllerRemoveEntryMutation`, then both the
-  playlist-detail query and the playlists-list query are invalidated
-  (track counts change) so every screen showing this playlist refetches.
+== Upload a song
 
-Three re-emitting hops, all unchanged pass-throughs, one owner. Compare to the
-*playback* scenario above, where step 6 needed no forwarding at all because
-the state that matters to more than one component was never an
-input/output chain to begin with — it was a service from the start.
+#mermaid(```mermaid
+sequenceDiagram
+  actor U as User
+  participant C as SongUpload
+  participant API as SongsService
+  participant FS as FileStorage
+  participant DB as SongRepository
+  U->>C: drop .mp3
+  C->>API: POST /api/songs (multipart)
+  API->>API: check MP3, ≤ 20 MB, read ID3
+  API->>FS: put(audio), put(cover)
+  API->>DB: save(song)
+  API-->>C: 201 song
+  C->>C: invalidate songs query
+```)
 
-== Scenario: upload and parse a song
+== Delete a song
 
-#table(
-  columns: (auto, 1fr),
-  inset: 6pt, stroke: 0.4pt + rgb("#cccccc"),
-  [Step], [What happens],
-  [1], [User drags an `.mp3` onto `SongUploadComponent`, or picks one via the
-   hidden file input; non-`.mp3` files are rejected client-side before any
-   request is made.],
-  [2], [`songsControllerUploadMutation` posts the file as `multipart/form-data`
-   to `POST /api/songs` (session cookie, #adrlink("0005-session-cookie-auth")).],
-  [3], [The API reads the ID3 tag (title/artist/album/duration), stores the
-   audio via `FileStorage`, and persists the song row scoped to the caller's
-   `ownerId`.],
-  [4], [On success (or once the whole batch settles), the mutation
-   invalidates the songs list query; TanStack Query refetches and every
-   subscriber (the songs page, any playlist-detail panel currently open)
-   re-renders with the new song — no manual cache surgery in the component.],
-)
+The response returns before playlists are cleaned up.
+
+#mermaid(```mermaid
+sequenceDiagram
+  actor U as User
+  participant S as SongsService
+  participant FS as FileStorage
+  participant EB as EventBus
+  participant H as RemoveDeletedSongFromPlaylists
+  U->>S: DELETE /api/songs/{id}
+  S->>S: remove row
+  S->>FS: delete audio, cover
+  S->>EB: publish SongDeleted
+  S-->>U: 204
+  EB-)H: SongDeleted (async)
+  H->>H: remove song from every playlist
+  Note over H: on failure: hourly sweep repairs
+```)
+
+== Sign in
+
+#mermaid(```mermaid
+sequenceDiagram
+  actor U as Browser
+  participant API as API
+  participant K as Keycloak
+  U->>API: GET /api/auth/login
+  API-->>U: redirect to Keycloak
+  U->>K: login form
+  K-->>U: redirect with code
+  U->>API: GET /api/auth/callback?code
+  API->>K: exchange code for tokens
+  API->>API: store tokens in session row
+  API-->>U: Set-Cookie session id (HttpOnly)
+```)

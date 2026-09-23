@@ -1,100 +1,88 @@
-#import "../lib.typ": adrlink
+#import "../lib.typ": adrlink, mermaid, tbl
 
 #pagebreak(weak: true)
 
 = Building Block View
 
-== Level 1 — Whitebox Overall System
+== Level 1 — System
 
-#table(
-  columns: (auto, 1fr),
-  inset: 6pt, stroke: 0.4pt + rgb("#cccccc"),
-  [Building block], [Responsibility],
-  [`frontend/` — Angular SPA],
-  [Everything the browser runs: routes, the record-player UI, client-side
-   playback state. No business rules — every mutation goes through the API.
-   Detailed in Level 2 below.],
-  [`backend/` — NestJS API],
-  [DDD/hexagonal contexts `songs`, `playlists`, `identity`, `streaming`
-   (#adrlink("0002-ddd-hexagonal-backend")); owns every invariant and every
-   `ownerId` check. Its own building-block breakdown is `domain-model.typ`,
-   not repeated here.],
-  [nginx (Compose `web`)],
-  [Serves the built SPA and reverse-proxies `/api/*` to the API
-   (#adrlink("0003-nginx-serves-frontend")); TLS termination.],
-  [PostgreSQL (Compose `db`)], [Song & playlist metadata; local user rows.],
-  [Blob storage], [Audio bytes behind `FileStorage`
-   (#adrlink("0004-metadata-postgres-blob-storage-port")): local filesystem by
-   default, S3-compatible (MinIO in dev) behind a Compose profile.],
-  [Keycloak + `keycloak-db`],
-  [OIDC identity provider (#adrlink("0005-session-cookie-auth")); the backend
-   is a confidential client and holds tokens server-side.],
+#mermaid(```mermaid
+flowchart TB
+  subgraph FE["frontend/ (Angular SPA)"]
+    R["Routes: songs, playlists"]
+    PS["PlayerService"]
+  end
+  subgraph BE["backend/ (NestJS API)"]
+    ID["identity"]
+    SO["songs"]
+    PL["playlists"]
+  end
+  FE -->|"REST /api (generated client)"| BE
+  SO -.->|"SongDeleted"| PL
+  BE --> DB[("PostgreSQL: app db")]
+  SO --> FS[("FileStorage")]
+  ID --> KC["Keycloak"]
+  KC --> KDB[("PostgreSQL: keycloak-db")]
+```)
+
+#tbl(
+  [Block], [Responsibility],
+  [`frontend/`], [UI and client-side playback state. No business rules.],
+  [`backend/`], [All rules and owner checks. Detail: `domain-model.typ`.],
+  [nginx], [Serves the SPA, proxies `/api`, terminates TLS.],
+  [PostgreSQL `db`], [App data: songs, playlists, users, sessions.],
+  [FileStorage], [Audio and cover bytes. Local filesystem.],
+  [Keycloak], [Login and registration (OIDC).],
+  [PostgreSQL `keycloak-db`], [Keycloak's own data. The API never touches it.],
 )
 
-The channel-level view (protocols, who calls whom) is in
-#link("03-context-and-scope.typ")[§3, Technical Context] — not repeated here.
+== Level 2 — Backend Module
 
-== Level 2 — Frontend Whitebox
+Every context has the same four layers. Dependencies point inward.
 
-`frontend/src/app/` is Angular 22, zoneless, standalone components, organised
-by feature rather than by layer:
+#mermaid(```mermaid
+flowchart LR
+  H["http/ (controllers, DTOs)"] --> A["application/ (use cases, ports)"]
+  I["infrastructure/ (Drizzle, filesystem)"] -->|"implements ports"| A
+  A --> D["domain/ (aggregates, value objects)"]
+```)
 
-```
-src/app/
-  api/            generated HeyApi client + TanStack Query options (ADR-0006)
-  api-runtime-config.ts   fetch client defaults (baseUrl /api, credentials include)
-  auth/           AuthService (BFF redirects), auth-redirect (401 → login), UserMenuComponent
-  core/           app-wide singletons (interceptors, guards) — currently empty
-  shared/
-    song-asset-urls.ts     cover/audio URL builders
-    songs/                 SongListPanelComponent (smart) + presentational row/menu/skeleton
-  features/
-    songs/          SongsPageComponent (route), SongUploadComponent
-    playlists/       PlaylistsPageComponent, PlaylistDetailComponent (routes),
-                      ui/ (PlaylistGridComponent, PlaylistCardComponent, …)
-    player/          PlayerService (signal store), PlayerComponent (bar),
-                      PlayerDrawerComponent (expanded view), ui/ (transport,
-                      scrubber, turntable, volume — all presentational)
-  app.config.ts     providers: router, TanStack Query, i18n, Optimus UI theme
-  app.routes.ts     /songs · /playlists · /playlists/:id
-e2e/                Playwright specs, run against the full Compose stack
-```
+== Level 2 — Frontend
 
-*State has exactly two homes*, never a third:
+#mermaid(```mermaid
+flowchart TB
+  subgraph routes["Route components"]
+    SP["SongsPage"]
+    PP["PlaylistsPage"]
+    PD["PlaylistDetail"]
+  end
+  SLP["SongListPanel (smart)"]
+  SL["SongList"]
+  ROW["SongRow"]
+  MENU["SongMenu"]
+  PLS["PlayerService (signals + audio)"]
+  BAR["Player bar"]
+  DRW["Player drawer"]
+  SP --> SLP
+  PD --> SLP
+  SLP --> SL --> ROW --> MENU
+  SLP -->|"play(song, queue)"| PLS
+  BAR --> PLS
+  DRW --> PLS
+  PP --> GRID["PlaylistGrid"] --> CARD["PlaylistCard"]
+```)
 
-- *Server state* — anything that came from the API (songs, playlists) — lives
-  in TanStack Query, injected via `injectQuery`/`injectMutation` in whichever
-  component owns that data (#adrlink("0006-openapi-typed-client-tanstack-query")).
-  Nothing duplicates it into a signal "just in case".
-- *Client state* — state that exists only in the browser — is either local to
-  one component (`signal()`/`model()` — e.g. which song is open in the edit
-  dialog) or, when several unrelated parts of the shell need it at once,
-  lives in an injectable service (`PlayerService`, `providedIn: 'root'`, one
-  `<audio>` element mirrored into signals; see #link("08-crosscutting-concepts.typ")[§8]).
-
-*Component roles* follow a presentational/container split with a capped
-event-forwarding depth — the rule and its rationale are
-#link("../../adr/0007-frontend-component-communication.pdf")[ADR-0007].
-The building blocks it produces:
-
-#table(
-  columns: (auto, 1fr),
-  inset: 6pt, stroke: 0.4pt + rgb("#cccccc"),
-  [Role], [Examples],
-  [*Route component*],
-  [`SongsPageComponent`, `PlaylistsPageComponent`, `PlaylistDetailComponent` —
-   own a query, resolve route params, compose the panel/grid below them.],
-  [*Smart panel*],
-  [`SongListPanelComponent` — every song-row mutation (play, edit, delete,
-   add/remove-from-playlist, reorder) for both the library and every
-   playlist-detail view, so that logic exists exactly once.],
-  [*Presentational — layout*],
-  [`SongListComponent`, `PlaylistGridComponent` — lay out repeated children,
-   re-emit their events unchanged, own no query or mutation.],
-  [*Presentational — leaf*],
-  [`SongRowComponent`, `SongMenuComponent`, `PlaylistCardComponent`,
-   `player/ui/*` — take inputs, raise outputs, know nothing about HTTP.],
-  [*Modal / form*],
-  [`SongEditDialogComponent`, `PlaylistCreateDialogComponent` — Angular
-   Signal Forms + their own mutation, opened by one input/output pair.],
+#tbl(
+  [Folder], [Contents],
+  [`api/`], [Generated client + query options. Don't edit.],
+  [`auth/`], [Login redirects, 401 handling, user menu.],
+  [`shared/songs/`], [Song list panel and its presentational parts.],
+  [`features/songs/`], [Songs route, upload.],
+  [`features/playlists/`], [Playlists routes, grid, cards, dialogs.],
+  [`features/player/`], [`PlayerService`, bar, drawer, turntable UI.],
 )
+
+State has two homes (#adrlink("0006-openapi-typed-client-tanstack-query")):
+- *Server state* lives in TanStack Query. Never copied into signals.
+- *Client state* lives in a component signal, or in `PlayerService` when
+  several components need it at the same time.

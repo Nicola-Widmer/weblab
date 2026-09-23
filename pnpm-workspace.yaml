@@ -1,0 +1,4 @@
+# Not a workspace — pnpm 11 reads project-level settings from this file.
+# Supply-chain guard: only resolve versions published at least 5 days ago
+# (7200 min). See arc42 §8 "Dependency supply chain".
+minimumReleaseAge: 7200

@@ -15,6 +15,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: 'html',
+  // Opt-in coverage (E2E_COVERAGE=1): see e2e/coverage.ts.
+  globalSetup: './e2e/coverage-setup.ts',
+  globalTeardown: './e2e/coverage-teardown.ts',
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'https://localhost:8443',
     ignoreHTTPSErrors: true,

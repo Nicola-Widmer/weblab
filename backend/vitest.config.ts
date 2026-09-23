@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     include: ['test/**/*.spec.ts', 'src/**/*.spec.ts'],
     root: '.',
+    coverage: { include: ['src/**'], reporter: ['text-summary', 'html'] },
   },
   plugins: [swc.vite()],
 });

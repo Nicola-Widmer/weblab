@@ -16,3 +16,7 @@ allowBuilds:
 onlyBuiltDependencies:
   - esbuild
   - '@swc/core'
+
+# Supply-chain guard: only resolve versions published at least 5 days ago
+# (7200 min). See arc42 §8 "Dependency supply chain".
+minimumReleaseAge: 7200

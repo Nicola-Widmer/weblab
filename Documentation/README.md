@@ -1,42 +1,39 @@
 # Documentation
 
-| File | Purpose |
+```mermaid
+flowchart LR
+  P["Proposal.typ<br/>what we build"] --> A["arc42/architecture.typ<br/>how it is built"]
+  A -->|"§9 links"| ADR["adr/NNNN-*.typ<br/>why"]
+  A -->|"§5 links"| D["domain-model.typ<br/>backend model"]
+```
+
+| File | Content |
 | --- | --- |
-| `Proposal.typ` | Project proposal, user stories, MoSCoW scope. **What** is built. |
-| `domain-model.typ` | The backend domain model: bounded contexts, aggregates, value objects, invariants, ports, the one cross-context event. Standalone (compile directly). Diagrams authored in Mermaid. |
-| `arc42/architecture.typ` | Entry point for the arc42 doc (v8): preamble, title page, outline, `#include`s of each section. Compile **this**. |
-| `arc42/sections/NN-*.typ` | One file per arc42 section (1–12). Pure content fragments. |
-| `arc42/lib.typ` | Shared Typst helpers used by the section files. |
-| `adr/NNNN-*.typ` | Architecture Decision Records (MADR style). **Why** each significant choice was made. Immutable once accepted. |
-| `adr/template.typ` | Template + instructions for new ADRs. |
+| `Proposal.typ` | Scope, user stories, MoSCoW |
+| `arc42/architecture.typ` | Architecture (arc42). Sections in `arc42/sections/` |
+| `domain-model.typ` | Contexts, aggregates, rules, ports, events |
+| `adr/NNNN-*.typ` | One decision per file. New ADR: copy the header from `adr/template.typ` |
+| `work-journal.typ` | Hours log |
 
-## How these relate
+## Decisions
 
-`arc42/architecture.typ` is the umbrella. Its **section 9** lists the decisions
-and links to the ADRs. Don't grow one giant ADR — add a new numbered file per
-decision and reference it from section 9.
+| ADR | Decision |
+| --- | --- |
+| 0001 | One repo, one backend process |
+| 0002 | DDD + hexagonal modules, async event bus |
+| 0003 | nginx serves the SPA and proxies `/api` |
+| 0004 | PostgreSQL for metadata, audio behind `FileStorage` |
+| 0005 | Keycloak (OIDC), session cookie, owner-scoped queries |
+| 0006 | Generated OpenAPI client, TanStack Query |
+| 0007 | Presentational/container split, max two re-emits |
 
-## Decision log
+## Build
 
-| ADR | Decision | Status |
-| --- | --- | --- |
-| 0001 | Single repository, single deployable monolith | Accepted |
-| 0002 | DDD tactical patterns + hexagonal layering, module per bounded context | Accepted |
-| 0003 | Dedicated nginx container serves the SPA and reverse-proxies `/api` | Accepted |
-| 0004 | PostgreSQL for metadata; audio bytes behind a `FileStorage` port (local FS default, S3 optional) | Accepted |
-| 0005 | OIDC auth delegated to Keycloak (own container + database); ownership enforced inside use cases | Accepted |
-| 0006 | OpenAPI-first typed frontend client (`@nestjs/swagger` → `openapi.json` → HeyApi); TanStack Query for server state | Accepted |
-| 0007 | Frontend presentational/container split; output events capped at two forwarding hops; cross-cutting client state in an injectable signal service | Accepted |
-
-## Building the PDFs
+All diagrams are Mermaid, rendered by the Typst package `@preview/merman`
+(downloaded on first compile).
 
 ```bash
 typst compile arc42/architecture.typ
-typst compile adr/0003-nginx-serves-frontend.typ
+typst compile domain-model.typ
+for f in adr/0*.typ; do typst compile "$f"; done
 ```
-
-The arc42 section files under `arc42/sections/` are fragments — compile
-`arc42/architecture.typ`, not the individual sections. To add a section, create
-the file and add one `#include` line to `architecture.typ`.
-
-Requires the `New Computer Modern` font (bundled with a normal Typst install).

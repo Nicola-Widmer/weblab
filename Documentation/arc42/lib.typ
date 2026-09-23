@@ -1,6 +1,11 @@
-// Shared helpers for the arc42 architecture document.
-// Imported by the section files under sections/.
+// Shared helpers for the arc42 section files.
 
-// Link to an ADR PDF, rendered relative to the compiled architecture.pdf
-// (which lives in Documentation/arc42/).
+#import "@preview/merman:0.3.0": mermaid
+
+// Link to an ADR PDF, relative to arc42/architecture.pdf.
 #let adrlink(id) = link("../adr/" + id + ".pdf")[#raw(id)]
+
+// Uniform table look.
+#let tbl(columns: (auto, 1fr), ..cells) = table(
+  columns: columns, inset: 6pt, stroke: 0.4pt + rgb("#cccccc"), ..cells,
+)

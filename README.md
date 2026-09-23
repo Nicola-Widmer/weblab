@@ -8,10 +8,10 @@ architecture doc and ADRs.
 
 ## Status
 
-Boilerplate scaffold. The **`songs`** backend context is implemented end to end
-as the reference slice (upload with ID3 extraction, list, get, edit, delete);
-`playlists`, `identity`, and `streaming` are stub folders. The frontend is an
-Angular shell plus the generated API layer — no feature UI yet.
+Backend contexts `identity` (Keycloak login), `songs` (upload, edit, delete,
+range streaming) and `playlists` (CRUD, reorder) are implemented. The frontend
+has the songs and playlists views and the record-player UI. S3 storage is not
+built yet.
 
 ## Stack
 
@@ -22,7 +22,7 @@ Angular shell plus the generated API layer — no feature UI yet.
 | Database | PostgreSQL 17                                                                                                                     |
 | Audio storage | `FileStorage` port — local volume (default) or S3 ([ADR-0004](Documentation/adr/0004-metadata-postgres-blob-storage-port.typ))    |
 | API contract | NestJS controllers/DTOs → OpenAPI 3.0 → typed client ([ADR-0006](Documentation/adr/0006-openapi-typed-client-tanstack-query.typ)) |
-| Tests | Vitest / Jest (unit), Supertest + Testcontainers (integration), Playwright (E2E)                                                  |
+| Tests | Vitest (unit), Supertest + Testcontainers (integration), Playwright (E2E)                                                  |
 | Packaging | Docker Compose, nginx in front ([ADR-0003](Documentation/adr/0003-nginx-serves-frontend.typ))                                     |
 
 ## Run it — Docker Compose
@@ -60,6 +60,9 @@ pnpm install        # root: installs mprocs
 pnpm run setup      # installs backend/ and frontend/ deps
 pnpm dev            # db + api + web
 ```
+
+pnpm only installs versions that are at least 5 days old (`minimumReleaseAge`
+in each `pnpm-workspace.yaml`); see arc42 §8 "Dependency supply chain".
 
 - SPA on **http://localhost:4200** (proxies `/api` → `:3000`).
 - [`docker-compose.override.yml`](docker-compose.override.yml) publishes Postgres

@@ -1,4 +1,4 @@
-#import "template.typ": adr
+#import "template.typ": adr, mermaid
 #show: adr.with(
   "0001",
   "Single repository, single deployable backend",
@@ -6,60 +6,39 @@
   date: "2026-09-01",
 )
 
-= Context and Problem Statement
+= Context
 
-The Web Music Player has an Angular frontend and a NestJS REST backend, built
-by one developer against an academic deadline. How should the code be organised
-and shipped — one repository or several, and the backend as one service or split
-into parts?
+One developer, one deadline. Frontend and backend usually change together, and
+the system must start with `docker compose up`.
 
-= Decision Drivers
+= Options
 
-- One developer, tight deadline — coordination overhead should be minimal.
-- The proposal requires the whole system to come up with `docker compose up`.
-- Frontend and backend change together; a feature often touches both.
-- The architecture should stay small enough to explain.
++ *Monorepo, one backend process*
++ Polyrepo — separate frontend and backend repos
++ Split the backend into several services now
 
-= Considered Options
+= Decision
 
-+ *Monorepo, monolithic backend* — one repository holding the frontend, the
-  backend and the Compose file; the backend runs as a single service.
-+ *Polyrepo* — separate repositories for frontend and backend, released
-  independently.
-+ *Split the backend into separate services now.*
+*Option 1.*
 
-= Decision Outcome
+#mermaid(```mermaid
+flowchart LR
+  subgraph repo["one git repo"]
+    FE["frontend/"]
+    BE["backend/"]
+    DC["docker-compose.yml"]
+  end
+  DC -->|"builds"| W["web image"]
+  DC -->|"builds"| A["api image"]
+```)
 
-Chosen: *option 1*. A team of one and the "one command up" constraint both point
-to a single repository and a single backend process. A change that spans the API
-and the UI is one commit. Splitting later stays possible — see
-#link("0002-ddd-hexagonal-backend.pdf")[ADR-0002] for the internal boundaries
-that keep that option open — and the cost of distributing the system is not worth
-paying now.
+A change touching API and UI is one commit. Module boundaries (ADR-0002) keep
+a later split possible.
 
-== Consequences
+= Consequences
 
-- Good: one checkout, one build; API and UI changes are atomic.
-- Neutral: frontend and backend share a repository, a version and a release by
-  choice; they may still be packaged as separate images
-  (#link("0003-nginx-serves-frontend.pdf")[ADR-0003]).
-- Bad: the repository carries two toolchains.
-- Bad: a monolith can erode into a tangle — the module boundaries in ADR-0002
-  are the countermeasure.
-
-= Pros and Cons of the Options
-
-== Polyrepo
-
-Cleaner separation and independent releases, but version skew between API and
-client, cross-repository changes, and duplicated setup — overhead a single
-developer does not need.
-
-== Separate services now
-
-Hard boundaries, but network hops, partial-failure handling and multiple deploy
-units — more than this project warrants.
-
-= More Information
-
-Revisit if the project gains contributors or needs to scale parts independently.
+- Good: one checkout, one build, atomic API + UI changes.
+- Bad: two toolchains in one repo.
+- Bad: a monolith can get tangled — ADR-0002's boundaries prevent that.
+- Rejected polyrepo: version skew, cross-repo changes.
+- Rejected services: network hops and deploy overhead for no gain.

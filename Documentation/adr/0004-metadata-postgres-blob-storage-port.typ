@@ -1,4 +1,4 @@
-#import "template.typ": adr
+#import "template.typ": adr, mermaid
 #show: adr.with(
   "0004",
   "PostgreSQL for metadata; audio files behind a storage abstraction",
@@ -6,68 +6,39 @@
   date: "2026-09-01",
 )
 
-= Context and Problem Statement
+= Context
 
-Two kinds of data must be persisted: small structured records (song and playlist
-metadata, users, sessions) and large MP3 blobs (up to 20 MB each). The proposal
-fixes PostgreSQL for metadata and the server filesystem for audio, and lists
-S3-compatible object storage as an optional improvement for running on more than
-one node, chosen by configuration. How should this be structured so the optional
-path is not a rewrite?
+Two kinds of data: small records (songs, playlists, users) and MP3s up to
+20 MB. The default must run without a cloud account. S3 is an optional extra.
+Audio needs range reads.
 
-= Decision Drivers
+= Options
 
-- `docker compose up` must work with no cloud account — the default cannot be S3.
-- The proposal's multi-node option should be reachable by configuration.
-- Audio needs range reads for seeking (proposal: HTTP Range support).
-- Deleting a song must not leave the file behind.
-- The proposal requires the S3 path to be covered by integration tests (MinIO).
++ *PostgreSQL for metadata, audio behind a `FileStorage` port*
++ Store MP3s in PostgreSQL (`BYTEA`)
++ Call the filesystem directly, add S3 later
 
-= Considered Options
+= Decision
 
-+ *PostgreSQL for metadata; audio bytes behind a storage interface*, with a
-  local-filesystem implementation (default) and an S3-compatible one, selected
-  by configuration.
-+ *Store the MP3s in PostgreSQL too* (as `BYTEA` or large objects).
-+ *Use the local filesystem directly in the code now*; add S3 later if needed.
+*Option 1.*
 
-= Decision Outcome
+#mermaid(```mermaid
+flowchart LR
+  UC["SongsService"] --> SR["SongRepository"] --> PG[("PostgreSQL")]
+  UC --> FS["FileStorage port"]
+  FS --> L["LocalFileStorage (default)"]
+  FS --> M["InMemoryFileStorage (tests)"]
+  FS -.-> S3["S3 adapter (not built)"]
+```)
 
-Chosen: *option 1*. Metadata rows reference audio by an opaque key; the business
-layer moves bytes only through the storage interface, so which backend is in use
-is a configuration choice and the S3 path is a second implementation of one
-interface rather than a change to use cases. The local implementation keeps the
-default cloud-free.
+A song row stores an opaque key. Delete order: row first, then files. A failed
+file delete leaves an orphan file, which is harmless.
 
-Deleting a song removes the metadata row and the stored file. Because an external
-file or object delete cannot be part of the database transaction, the two are
-ordered and any leftover file is reconciled separately — the exact approach is an
-implementation detail.
+= Consequences
 
-== Consequences
-
-- Good: business logic does not depend on where the bytes live; switching to S3
-  is configuration plus a tested implementation.
-- Good: PostgreSQL and its backups stay small.
-- Bad: two stores to keep consistent — a partial failure can leave an orphaned
-  file or (less likely) a dangling row; needs delete-ordering and a
-  reconciliation step.
-- Bad: two implementations to test and maintain.
-
-= Pros and Cons of the Options
-
-== MP3s in PostgreSQL
-
-One store, one backup, atomic writes — but large blobs inflate the database, its
-write-ahead log and its backups, do not stream as naturally as files or object
-storage, and this does not help the multi-node goal.
-
-== Filesystem directly in the code
-
-Least code today, but the S3 option then reaches into the use cases; the
-interface is cheap to add now.
-
-= More Information
-
-Related: #link("0003-nginx-serves-frontend.pdf")[ADR-0003] (the front proxy and
-where audio bytes are served from).
+- Good: use cases don't know where bytes live.
+- Good: the database and its backups stay small.
+- Bad: two stores can drift (orphan files).
+- Bad: each adapter needs its own tests.
+- Rejected BYTEA: bloats the database and its backups.
+- Rejected direct filesystem: S3 would later leak into use cases.

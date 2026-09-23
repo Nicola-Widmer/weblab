@@ -1,55 +1,31 @@
+#import "../lib.typ": tbl
+
 #pagebreak(weak: true)
 
 = Introduction and Goals
 
-A web-based music player. Users upload MP3 files, organise them into playlists,
-and play them back on a screen styled as a record player: a vinyl disc that spins
-while a track plays and a tone-arm that drops on play and lifts on pause. The two
-self-defined CRUD resources are *Songs* and *Playlists*. The full functional
-scope and its MoSCoW prioritisation live in `Proposal.typ`; this document
-describes *how* the system is built and *why*.
+A web music player. Users upload MP3s, group them into playlists and play them
+on a record-player screen (spinning disc, moving tone-arm). The CRUD resources
+are *Songs* and *Playlists*. Scope and user stories: `Proposal.typ`.
 
 == Quality Goals
 
-#table(
-  columns: (auto, 1fr, 2fr),
-  inset: 6pt,
-  align: (center + horizon, left + horizon, left + horizon),
-  stroke: 0.4pt + rgb("#cccccc"),
-  [Prio], [Quality goal], [Motivation],
-  [1], [Turntable-like experience],
-  [The playback screen must *feel* like a real turntable — disc spin and
-   tone-arm motion — while still honouring `prefers-reduced-motion`.],
-  [2], [Smooth audio streaming & seeking],
-  [Playback starts without downloading the whole file; seeking works on mobile.
-   Requires HTTP Range (`206 Partial Content`) end to end.],
-  [3], [Testability & maintainability],
-  [Domain logic isolated from NestJS/PostgreSQL so a use case is unit-testable
-   with no I/O; a clear test pyramid (Vitest / Supertest / Playwright).],
-  [4], [Per-user data privacy],
-  [A user only ever sees or changes their own songs and playlists; enforced
-   server-side, not just in the UI.],
-  [5], [One-command operation],
-  [`docker compose up` brings the whole system up on a clean machine with no
-   manual steps and no cloud account.],
+#tbl(columns: (auto, auto, 1fr),
+  [Prio], [Goal], [Meaning],
+  [1], [Turntable feel], [Disc spins, tone-arm moves. Respects
+   `prefers-reduced-motion`.],
+  [2], [Streaming & seeking], [Playback starts before the file is downloaded.
+   HTTP Range (`206`) end to end.],
+  [3], [Testability], [Domain logic runs in unit tests without a database.],
+  [4], [Privacy], [Users only see their own data. Enforced on the server.],
+  [5], [One-command start], [`docker compose up` on a clean machine.],
 )
 
 == Stakeholders
 
-#table(
-  columns: (auto, 1fr),
-  inset: 6pt,
-  align: (left + horizon, left + horizon),
-  stroke: 0.4pt + rgb("#cccccc"),
-  [Role], [Expectations towards the architecture],
-  [Developer / student (Nicolà Widmer)],
-  [A structure to build within the time box; guardrails that keep decisions
-   consistent; fast feedback from tests.],
-  [Assessor / lecturer (HSLU)],
-  [Lab requirements met (≥ 2 self-defined CRUD resources, automated tests,
-   Docker packaging); architecture and decisions documented.],
-  [End user / self-hoster],
-  [Reliable upload and playback, a private library, a simple setup.],
-  [Future maintainer],
-  [Understandable module boundaries and ADRs that explain the "why".],
+#tbl(
+  [Role], [Expects],
+  [Developer (Nicolà Widmer)], [Clear structure, fast tests.],
+  [Lecturer (HSLU)], [≥ 2 CRUD resources, tests, Docker, documented decisions.],
+  [End user], [Reliable upload and playback, private library.],
 )

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './coverage';
 import { deleteSong, songRow, uploadSong } from './helpers';
 
 test.describe('player', () => {

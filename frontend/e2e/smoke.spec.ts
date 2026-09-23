@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './coverage';
 
 test.describe('app shell', () => {
   // Runs against a clean, signed-out context — the `chromium` project's

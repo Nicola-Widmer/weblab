@@ -9,7 +9,8 @@
   },
   "scripts": {
     "dev": "mprocs",
-    "setup": "pnpm -C backend install && pnpm -C frontend install"
+    "setup": "pnpm -C backend install && pnpm -C frontend install",
+    "e2e:coverage": "scripts/e2e-coverage.sh"
   },
   "devDependencies": {
     "mprocs": "^0.9.6"

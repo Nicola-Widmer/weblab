@@ -1,4 +1,4 @@
-#import "template.typ": adr
+#import "template.typ": adr, mermaid
 #show: adr.with(
   "0007",
   "Presentational/container split with a hard cap on event-forwarding depth",
@@ -6,123 +6,88 @@
   date: "2026-09-21",
 )
 
-= Context and Problem Statement
+= Context
 
-The Angular SPA (`frontend/src/app/`) is organised as feature folders
-(`features/songs`, `features/playlists`, `features/player`) plus a `shared/`
-slice for components used across features (`shared/songs/*`). As the song-row
-and player controls grew their own sub-components (a menu, a drag handle, a
-scrubber, a turntable), user intent — "play this song", "delete this song",
-"seek to here" — has to travel from a small presentational leaf up to whichever
-component owns the mutation or the playback store. Angular's idiomatic tool for
-that is `output()`, re-emitted one level at a time. Left unchecked, that
-re-emission chain grows with the component tree: every new wrapper adds another
-`(event)="event.emit($event)"` line, in every component the intent passes
-through, for every kind of intent that component's children can raise. A
-`play` / `edit` / `delete` intent forwarded through five layers means five
-places to keep in sync when a sixth is added, and a bug in hop three silently
-swallows the event with no compiler error.
+Clicks in small components (menu, row, transport buttons) must reach the
+component that owns the mutation. Re-emitting `output()`s through many layers
+is error-prone: a missed re-emit fails silently. Playback state is needed by the
+bar and the drawer at the same time.
 
-= Decision Drivers
+= Options
 
-- One developer: every re-emitting hop is a place a rename or a new event kind
-  can be forgotten, with no compiler error when it is.
-- Angular's own idiom (dumb components + outputs) is worth keeping for real
-  reuse and testability — the answer is a *depth limit*, not "inject a service
-  everywhere".
-- Some state is genuinely global to the shell, not owned by any one route
-  (playback — the bottom bar and the drawer both render it).
-- Some state is genuinely owned by exactly one container per screen (which
-  song is mid-edit, which mutation is in flight) and has no reason to live
-  anywhere else.
++ *Presentational leaves emit; at most two re-emits; one smart component owns
+  the mutation; shared client state in a service*
++ Pass everything through inputs/outputs, any depth
++ One global store (NgRx)
++ Leaves inject the container's logic directly
++ Cache the visible list in `PlayerService` (or a `QueueService`) so rows can
+  call `play(song)` themselves
++ A panel-scoped context service (`providers: [SongListActions]` on the panel)
+  that rows and menus inject
 
-= Considered Options
+= Decision
 
-+ *Presentational/container split, output events capped at two forwarding
-  hops.* Leaf components (`SongMenuComponent`, `PlayerTransportComponent`, …)
-  only emit. A layout component in between (`SongRowComponent`,
-  `SongListComponent`) may re-emit the *same* event unchanged, once, when it
-  exists purely to lay out repeated children — never to add a hop for its own
-  sake. The chain always terminates at one *smart* component (a "panel" or a
-  route component) that owns the query/mutation or calls a shared service; nothing
-  re-emits past that point. Cross-cutting client state that many, unrelated
-  parts of the tree need (playback) lives in an injectable signal-based
-  service instead of being threaded through inputs/outputs at all.
-+ *Thread everything through inputs/outputs regardless of depth* — the default
-  if no one pays attention to it; rejected as the status quo this ADR is
-  reacting to.
-+ *One global store for everything* (NgRx/Akita-style), components dispatch
-  actions instead of emitting outputs — rejected as disproportionate for a
-  two-route app; it trades re-emission chains for indirection through action
-  types, and most state here (a query result, a dialog's open song) is cleanly
-  owned by one component already.
-+ *`inject()` the owning container's mutation logic directly from every leaf*
-  — rejected: it turns `SongMenuComponent` into something that can only be used
-  inside `SongListPanelComponent`, destroying the presentational/reusable split
-  option 1 keeps.
+*Option 1.*
 
-= Decision Outcome
+#mermaid(```mermaid
+flowchart BT
+  M["SongMenu (leaf)"] -->|"emit"| R["SongRow (re-emit 1)"]
+  R -->|"re-emit"| L["SongList (re-emit 2)"]
+  L -->|"re-emit"| P["SongListPanel (smart: mutations)"]
+  P -->|"play(song, queue)"| S["PlayerService (signals)"]
+  BAR["Player bar"] -->|"inject"| S
+  DR["Player drawer"] -->|"inject"| S
+```)
 
-Chosen: *option 1*.
+- Leaves use only `input()` / `output()`. No queries, no route params.
+- Smart components: `SongListPanel`, `PlaylistsPage`, the edit/create dialogs.
+- More than two re-emits → move the smart component closer or use a service.
+- A service is only for state that several mounted components show at once.
 
-- Presentational leaves stay presentational: `SongMenuComponent`,
-  `SongRowComponent`, `PlayerTransportComponent`,
-  `PlaylistCardComponent`, etc. take `input()`s and raise `output()`s; none of
-  them injects a query, a mutation, or a route param.
-- Exactly one *smart* component per concern owns the TanStack Query
-  query/mutations and is where an event chain ends:
-  `SongListPanelComponent` (play / edit / delete / add-to-playlist /
-  remove-from-playlist / reorder, shared by the library route and every
-  playlist-detail route), `PlaylistsPageComponent` (rename / delete),
-  `SongEditDialogComponent` and `PlaylistCreateDialogComponent` (their own
-  form + mutation, opened/closed via a single input/output pair).
-- A layout-only component in between (`SongListComponent` laying out
-  `SongRowComponent`s in a `p-dataview` or a `cdkDropList`) may re-emit an
-  event unchanged — that is *one* hop, still short, and exists only because
-  the same row markup is reused in two layouts (drag-reorderable and plain).
-  `SongMenuComponent → SongRowComponent → SongListComponent → SongListPanelComponent`
-  is the deepest chain in the app: three forwards, each one an unchanged
-  re-emit, terminating at the one component that knows what "delete" means.
-  Nothing here forwards an event because that used to be one hop shorter
-  and nobody revisited it.
-- Playback is the one piece of state several unrelated parts of the shell
-  render at once (the sticky bottom bar and the expanded drawer,
-  simultaneously mounted). It lives in `PlayerService`
-  (`providedIn: 'root'`, #link("../arc42/architecture.pdf")[§8]) — a signal store wrapping one `<audio>`
-  element — injected directly by both. No `@Input`/`@Output` chain could
-  reach both consumers without a common ancestor re-emitting to both, which
-  is exactly the pattern this ADR caps.
-- Rule of thumb enforced in review, not by tooling: if adding a feature would
-  make an event's forwarding chain exceed *two* re-emitting hops before it
-  reaches a smart component, that is the signal to either promote the
-  interaction to a shared service (if truly cross-cutting, like playback) or
-  restructure so the smart component sits closer to where the event
-  originates — not to add a third hop.
+== Why the chain has three hops
 
-== Consequences
+The runtime view shows `SongRow → SongList → SongListPanel → PlayerService`.
+The two middle hops add nothing: each is one template binding
+(`(play)="play.emit($event)"`). The chain exists because only the panel has
+the context the event needs:
 
-- Good: every event's owner is found by reading at most three components
-  (source, at most one relay, the smart component) — no chain-of-custody
-  spelunking through the tree to find where a click ends up.
-- Good: presentational components stay trivially reusable and unit-testable —
-  `SongMenuComponent` has no idea whether it is deleting a library song or
-  removing a playlist entry; that is `SongListPanelComponent`'s `variant`
-  input to decide.
-- Good: cross-cutting client state (playback) has one clear home instead of
-  being routed through whichever component happens to be the nearest common
-  ancestor today.
-- Bad: the two-hop rule is a review convention, not a lint rule — nothing
-  stops a chain from silently growing to three hops as new wrappers are
-  added; revisit if that turns out to happen often (#link("../arc42/architecture.pdf")[§11]).
-- Bad: reaching for `PlayerService` for something that *isn't* truly
-  cross-cutting would reintroduce the "just inject it" problem option 1
-  rejects — the line is "rendered by more than one simultaneously-mounted
-  component", not "would save a hop".
+- *Queue.* `PlayerService.play(song, queue)` needs the list in display order.
+  A row knows one song. The panel owns `rows()` and derives the queue from it.
+- *Meaning depends on where the list is.* In the library, `delete` deletes the
+  song. In a playlist, it removes the entry. `edit` opens a dialog the panel
+  owns. A row can't decide this without knowing where it is mounted.
+- *One path for all events.* `play`, `edit`, `delete`, `move` and
+  `addToPlaylist` all travel the same way. If rows injected a service for
+  `play` only, there would be two mechanisms for the same kind of event.
 
-= More Information
+`PlayerService` keeps only the _playing_ queue, copied at click time. That
+way, opening another page doesn't change which song plays next.
 
-Related: #link("0006-openapi-typed-client-tanstack-query.pdf")[ADR-0006] (the
-other half of state — server state lives in TanStack Query, this ADR is about
-client state and event flow). See #link("../arc42/architecture.pdf")[§5] for the
-frontend's building blocks and #link("../arc42/architecture.pdf")[§6] for a traced example
-(play a song from the library).
+== Keeping components small
+
+Only the panel grows, and that's intended: it owns what happens after a click.
+If it gets too large, move its logic into a plain `@Injectable()` provided on
+the panel and injected _only by the panel_. The panel then only wires things
+up, and leaves still use only `input()` / `output()`.
+
+= Consequences
+
+- Good: an event's owner is at most three components away.
+- Good: leaves are reusable and easy to test.
+- Good: playback has one home.
+- Bad: the two-hop rule is checked in review, not by a linter.
+- Bad: overusing services would bring back hidden coupling.
+- Rejected NgRx: too heavy for three routes.
+- Rejected injecting into leaves: they could no longer be reused, and a row
+  lacks the queue and library/playlist context anyway.
+- Rejected caching the visible list in a root service: whichever panel mounted
+  last overwrites it, so "next" can jump into a list the user left. Fixing this
+  needs a second "playing queue" field and register/unregister on every
+  panel. Two panels on screen at once would conflict without any error. A
+  separate `QueueService` has the same problems. It also always goes together
+  with `PlayerService`, because `next()`, `previous()` and `ended` need both.
+- Rejected a panel-scoped context service for now: it removes the forwarding
+  and scopes cleanly per panel. But leaves would then depend on a provider
+  they can't see, a missing provider is a runtime DI error instead of a
+  compile error, and every leaf test needs the provider. Worth revisiting if
+  the tree gets deeper than the two-re-emit cap.

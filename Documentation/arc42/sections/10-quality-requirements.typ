@@ -1,56 +1,36 @@
+#import "../lib.typ": mermaid, tbl
+
 #pagebreak(weak: true)
 
 = Quality Requirements
 
-== Quality Tree
+#mermaid(```mermaid
+flowchart LR
+  Q["Quality"] --> US["Usability"]
+  Q --> PE["Performance"]
+  Q --> MA["Maintainability"]
+  Q --> SE["Security"]
+  Q --> OP["Operability"]
+  Q --> RE["Reliability"]
+  US --> Q6["Q6 reduced motion"]
+  PE --> Q1["Q1 fast seek"]
+  MA --> Q5["Q5 unit-testable"]
+  SE --> Q2["Q2 isolation"]
+  SE --> Q4["Q4 bad upload"]
+  OP --> Q3["Q3 one command"]
+  RE --> Q7["Q7 clean delete"]
+```)
 
-- *Usability*
-  - Turntable metaphor is legible and responsive (Prio 1)
-  - Clear loading / success / error feedback; designed empty states (NFR-1)
-  - Keyboard operable, WCAG AA contrast, `prefers-reduced-motion` honoured
-- *Performance efficiency*
-  - Playback starts without full download; seek latency low on mobile (Prio 2)
-  - Song list renders quickly with lazy-loaded cover thumbnails
-- *Maintainability*
-  - Domain logic unit-testable with no I/O (Prio 3)
-  - Bounded contexts independently understandable; adapters swappable
-- *Security*
-  - Strict per-user data isolation (Prio 4)
-  - Safe upload handling; hashed passwords; no secrets in the repo
-- *Portability / Operability*
-  - `docker compose up` on a clean machine, no manual steps (Prio 5)
-  - Storage backend switchable to S3 by configuration only
-- *Reliability*
-  - Delete leaves no orphaned files or dangling playlist entries
-
-== Quality Scenarios
-
-#table(
-  columns: (auto, auto, 1.6fr, 1.1fr),
-  inset: 6pt, stroke: 0.4pt + rgb("#cccccc"),
-  [ID], [Quality], [Scenario (stimulus → response)], [Measure],
-  [Q1], [Performance],
-  [User drags the seek bar to a new position on a throttled mobile connection.],
-  [Audio resumes from the new position in < 1 s; a single `206` range request,
-   no full-file fetch.],
-  [Q2], [Security],
-  [User A requests `GET /api/songs/{B's id}`.],
-  [Always `404`; covered by an integration test for every resource type.],
-  [Q3], [Operability],
-  [`docker compose up` on a machine with only Docker installed.],
-  [App reachable on `:80`, migrations applied, no manual step, within ~60 s.],
-  [Q4], [Reliability / Security],
-  [Upload of a 25 MB file, or a `.wav` renamed to `.mp3`.],
-  [Rejected with `4xx`; no metadata row and no stored object created.],
-  [Q5], [Maintainability],
-  [A new use case is added to the `playlists` module.],
-  [It can be fully unit-tested with fake ports; no PostgreSQL needed for that
-   test.],
-  [Q6], [Usability],
-  [OS "reduce motion" setting is on when a track plays.],
-  [The disc does not spin; controls and audio behave normally.],
-  [Q7], [Reliability],
-  [A song that sits in 3 playlists and is currently playing is deleted.],
-  [Row + file removed, all 3 playlists lose the entry with order preserved,
-   the player advances or stops.],
+#tbl(columns: (auto, 1fr, 1fr),
+  [ID], [Scenario], [Expected],
+  [Q1], [User seeks on a slow mobile connection.], [Plays from new position in
+   < 1 s with one `206` request.],
+  [Q2], [User A requests B's song.], [`404`.],
+  [Q3], [`docker compose up` on a machine with only Docker.], [App on `:8443`,
+   migrations applied, no manual step.],
+  [Q4], [Upload of a 25 MB file or a non-MP3.], [`400`; nothing stored.],
+  [Q5], [New `playlists` use case.], [Unit-testable with fake ports.],
+  [Q6], [OS "reduce motion" is on.], [Disc does not spin; audio works.],
+  [Q7], [Delete a playing song that is in 3 playlists.], [Row and file gone,
+   entries removed, player advances.],
 )

@@ -1,26 +1,14 @@
-// MADR-style Architecture Decision Record — Typst template.
+// MADR-style ADR template.
 //
-// Usage: create Documentation/adr/NNNN-short-title.typ with, as the very first
-// lines:
+// New ADR: create NNNN-short-title.typ starting with
 //
-//   #import "template.typ": adr
-//   #show: adr.with(
-//     "0007",
-//     "Short title in the imperative",
-//     status: "Accepted",           // Proposed | Accepted | Rejected | Deprecated | Superseded
-//     date: "2026-09-01",
-//     deciders: "Nicolà Widmer",
-//     supersedes: none,             // e.g. "ADR-0003"
-//     superseded-by: none,
-//   )
+//   #import "template.typ": adr, mermaid
+//   #show: adr.with("0008", "Title", status: "Accepted", date: "2026-09-30")
 //
-//   = Context and Problem Statement
-//   ...
-//
-// Recommended section headings (omit what does not apply):
-//   Context and Problem Statement · Decision Drivers · Considered Options ·
-//   Decision Outcome · Consequences · Pros and Cons of the Options ·
-//   More Information
+// Sections: Context · Options · Decision · Consequences. Keep each short.
+// Diagrams: #mermaid(```mermaid ... ```)
+
+#import "@preview/merman:0.3.0": mermaid
 
 #let status-badge(status) = {
   let palette = (

@@ -12,7 +12,9 @@ RUN pnpm install --frozen-lockfile
 
 COPY backend/openapi.json /app/backend/openapi.json
 COPY frontend/ ./
-RUN pnpm generate:api && pnpm build
+# NG_CONFIG=production,coverage adds source maps for E2E coverage.
+ARG NG_CONFIG=production
+RUN pnpm generate:api && pnpm build --configuration "$NG_CONFIG"
 
 # ---- serve with nginx + TLS ----
 FROM nginx:1.27-alpine AS runtime

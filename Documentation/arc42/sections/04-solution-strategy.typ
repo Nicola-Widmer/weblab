@@ -1,48 +1,25 @@
-#import "../lib.typ": adrlink
+#import "../lib.typ": adrlink, tbl
 
 #pagebreak(weak: true)
 
 = Solution Strategy
 
-#table(
-  columns: (auto, auto, auto),
-  inset: 6pt, stroke: 0.4pt + rgb("#cccccc"),
-  align: (left + horizon, left + horizon, center + horizon),
-  [Quality goal], [Architectural approach], [Ref],
-  [Maintainability, testability],
-  [*Monorepo monolith*: `backend/`, `frontend/`, Compose at the root — one
-   deployable, one repo, simple mental model.], [#adrlink("0001-monorepo-monolith")],
-  [Testability, maintainability, one API contract],
-  [*DDD + hexagonal* backend on *NestJS* (Express platform): one feature-folder
-   module per bounded context (`songs`, `playlists`, `identity`, `streaming`),
-   each split `domain` / `application` / `infrastructure` / `http`; DI for
-   adapters, the dependency rule points inward, cross-context communication via
-   an asynchronous fire-and-forget in-process domain-event bus (`@nestjs/cqrs`),
-   with a reconciliation sweep for dropped events. `@nestjs/swagger` derives
-   `openapi.json` from the controllers and DTO classes — no schema DSL, no
-   hand-written spec.],
+#tbl(columns: (auto, 1fr, auto),
+  [Goal], [Approach], [ADR],
+  [Simplicity], [One repo, one backend process.], [#adrlink("0001-monorepo-monolith")],
+  [Testability], [DDD + hexagonal NestJS modules: `identity`, `songs`,
+   `playlists`. Contexts talk via async in-process events.],
   [#adrlink("0002-ddd-hexagonal-backend")],
-  [Streaming performance, one public origin],
-  [A *dedicated nginx container* serves the built SPA and reverse-proxies
-   `/api` to the NestJS API — static files and `Range` streaming stay off the
-   Node event loop; single origin keeps the session cookie first-party.],
+  [Streaming, one origin], [nginx serves the SPA and proxies `/api`.],
   [#adrlink("0003-nginx-serves-frontend")],
-  [Portability, future multi-node],
-  [*PostgreSQL for metadata* + *pluggable binary storage* behind a
-   `FileStorage` port (local filesystem default, S3-compatible optional).],
+  [Portability], [Metadata in PostgreSQL, audio behind a `FileStorage` port.],
   [#adrlink("0004-metadata-postgres-blob-storage-port")],
-  [Per-user privacy],
-  [*OIDC auth delegated to Keycloak* (own container + `keycloak-db`); the
-   backend is a confidential client with a backend-for-frontend session cookie
-   (tokens held server-side); ownership enforced inside use cases (every
-   repository query scoped by `ownerId`), with an `AUTH_ENABLED=false` mode
-   backed by one implicit local user.],
+  [Privacy], [Keycloak login, session cookie, every query scoped by owner.],
   [#adrlink("0005-session-cookie-auth")],
-  [One-command operation],
-  [Everything is a Compose service; 12-factor env config; migrations run on API
-   start; the S3 backend is a Compose *profile*, off by default.], [—],
-  [Turntable UX],
-  [Frontend feature slice `player/` with a single signal-based store as the
-   source of playback truth; CSS animation gated on `prefers-reduced-motion`;
-   `<audio>` element wrapped by an `AudioService`.], [—],
+  [One contract], [OpenAPI generated from the backend, typed client generated
+   from that. TanStack Query for server state.],
+  [#adrlink("0006-openapi-typed-client-tanstack-query")],
+  [Maintainable UI], [Presentational/container split; playback in one service.],
+  [#adrlink("0007-frontend-component-communication")],
+  [Turntable feel], [CSS animation gated on `prefers-reduced-motion`.], [—],
 )
