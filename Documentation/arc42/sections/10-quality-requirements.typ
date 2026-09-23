@@ -14,6 +14,7 @@ flowchart LR
   Q --> RE["Reliability"]
   US --> Q6["Q6 reduced motion"]
   PE --> Q1["Q1 fast seek"]
+  PE --> Q8["Q8 Lighthouse ≥ 90"]
   MA --> Q5["Q5 unit-testable"]
   SE --> Q2["Q2 isolation"]
   SE --> Q4["Q4 bad upload"]
@@ -33,4 +34,16 @@ flowchart LR
   [Q6], [OS "reduce motion" is on.], [Disc does not spin; audio works.],
   [Q7], [Delete a playing song that is in 3 playlists.], [Row and file gone,
    entries removed, player advances.],
+  [Q8], [Signed-in user opens the prod build (`docker compose up`, `:8443`);
+   Lighthouse 12, mobile and desktop presets.], [Performance, Accessibility,
+   Best Practices and SEO each ≥ 90.],
+)
+
+#figure(
+  stack(dir: ttb, spacing: 0.5em,
+    image("../images/lighthouse-mobile.png", width: 100%),
+    image("../images/lighthouse-desktop.png", width: 100%),
+  ),
+  caption: [Q8 evidence: Lighthouse 12.8 on `/songs`, mobile (top: 94/95/100/100)
+   and desktop (bottom: 100/96/100/100), measured 23.09.2026.],
 )
