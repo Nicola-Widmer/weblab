@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2023",
-    "lib": ["es2023"],
-    "moduleResolution": "node",
+    // node10 is deprecated in TS 6, but drizzle-orm 0.45's .d.cts files import
+    // siblings as "./x.ts", i.e. the ESM .d.ts copies, so node16/nodenext load
+    // two copies of its types. Revisit with drizzle 1.0 (needed before TS 7).
+    "moduleResolution": "node10",
+    "ignoreDeprecations": "6.0",
+    // es2025 target isn't supported by SWC (used by Vitest) yet; lib gives the
+    // ES2025 APIs, which Node >=24 has natively.
+    "target": "es2024",
+    "lib": ["es2025"],
     "outDir": "./dist",
-    "baseUrl": "./",
     "declaration": false,
     "removeComments": false,
     "sourceMap": true,
