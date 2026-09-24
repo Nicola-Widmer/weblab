@@ -5,6 +5,7 @@ import { Playlist } from '../domain/playlist';
 export abstract class PlaylistRepository {
   abstract save(playlist: Playlist): Promise<void>;
   abstract byId(id: Uuid, ownerId: Uuid): Promise<Playlist | undefined>;
+  /** Oldest first (`createdAt`, then `id`), so the list order is stable. */
   abstract listByOwner(ownerId: Uuid): Promise<Playlist[]>;
   abstract remove(id: Uuid): Promise<void>;
   /**

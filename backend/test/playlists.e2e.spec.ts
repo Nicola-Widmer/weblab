@@ -139,6 +139,18 @@ describe('playlists: CRUD, ownership isolation, validation', () => {
     expect(listB.body.map((p: { name: string }) => p.name)).not.toContain('Roadtrip');
   });
 
+  it('lists playlists oldest first, ties broken by id', async () => {
+    for (const name of ['Zeta', 'Alpha', 'Mid']) {
+      expect((await asB().post('/api/playlists').send({ name })).status).toBe(201);
+    }
+
+    const list: Array<{ id: string; createdAt: string }> = (
+      await asB().get('/api/playlists')
+    ).body;
+    const key = (p: { id: string; createdAt: string }) => `${p.createdAt} ${p.id}`;
+    expect(list.map(key)).toEqual(list.map(key).sort());
+  });
+
   it('rejects an empty or whitespace-only name with 400, not 500', async () => {
     expect((await asA().post('/api/playlists').send({ name: '' })).status).toBe(400);
     expect((await asA().post('/api/playlists').send({ name: '   ' })).status).toBe(400);

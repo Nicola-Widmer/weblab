@@ -71,6 +71,9 @@ export class DrizzlePlaylistRepository extends PlaylistRepository {
   async listByOwner(ownerId: Uuid): Promise<Playlist[]> {
     const rows = await this.db.query.playlists.findMany({
       where: (p, { eq: equals }) => equals(p.ownerId, ownerId),
+      // Without ORDER BY Postgres may return rows in any order; `id` breaks
+      // ties between playlists created at the same instant.
+      orderBy: (p, { asc }) => [asc(p.createdAt), asc(p.id)],
       with: { entries: { orderBy: (e, { asc }) => asc(e.position) } },
     });
     return rows.map(toDomain);
