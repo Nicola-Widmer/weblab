@@ -44,7 +44,7 @@ const restrict = (patterns) => ({
 });
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'coverage/**', 'drizzle/**', 'openapi.json'] },
+  { ignores: ['dist/**', 'coverage/**', 'coverage-e2e/**', 'drizzle/**', 'openapi.json'] },
   {
     files: ['**/*.ts'],
     languageOptions: { parser: tseslint.parser },
