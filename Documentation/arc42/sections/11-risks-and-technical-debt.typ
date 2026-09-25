@@ -15,4 +15,11 @@
   [Bundle size], [Initial bundle over Angular's 1 MB warning.], [Low priority:
    self-hosted.],
   [S3 storage], [Adapter not built; only local filesystem.], [Optional (Could).],
+  [Dev credentials], [The compose stack is dev-only. The Keycloak realm import
+   seeds user `dev`/`dev` and client secret `dev-secret-change-me`. Keycloak
+   runs `start-dev` with admin `admin`/`admin` and self-registration on.
+   Postgres (`wmp`) and MinIO (`minioadmin`) also fall back to default
+   credentials.], [Accepted for local use. Before any deployment: separate
+   realm without seeded users, generated client secret, `start` mode, and
+   secrets from env vars without `:-default` fallbacks.],
 )
