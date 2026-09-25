@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LucideDisc3 } from '@lucide/angular';
+import { LucideDisc3, LucideListMusic, LucideMusic } from '@lucide/angular';
 import { PlayerComponent } from './features/player/player.component';
 import { UserMenuComponent } from './auth/user-menu.component';
 
@@ -14,6 +14,8 @@ import { UserMenuComponent } from './auth/user-menu.component';
     UserMenuComponent,
     TranslatePipe,
     LucideDisc3,
+    LucideMusic,
+    LucideListMusic,
   ],
   selector: 'app-root',
   styleUrl: './app.scss',

@@ -10,6 +10,7 @@ import {
   playlistsControllerRemoveMutation,
   playlistsControllerRenameMutation,
 } from '../../api/@tanstack/angular-query-experimental.gen';
+import { PageHeaderComponent } from '../../shared/page-header.component';
 import { PlaylistCreateDialogComponent } from './playlist-create-dialog.component';
 import { PlaylistGridComponent } from './ui/playlist-grid.component';
 
@@ -22,6 +23,7 @@ import { PlaylistGridComponent } from './ui/playlist-grid.component';
   selector: 'app-playlists-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PageHeaderComponent,
     PlaylistGridComponent,
     PlaylistCreateDialogComponent,
     Button,
@@ -29,13 +31,12 @@ import { PlaylistGridComponent } from './ui/playlist-grid.component';
     LucidePlus,
   ],
   template: `
-    <div class="mb-4 flex items-center justify-between">
-      <h1>{{ 'playlists.title' | translate }}</h1>
+    <app-page-header [title]="'playlists.title' | translate">
       <p-button size="small" (onClick)="creating.set(true)">
-        <svg lucidePlus class="mr-1 size-4"></svg>
+        <svg lucidePlus class="mr-2 size-4"></svg>
         {{ 'playlists.actions.create' | translate }}
       </p-button>
-    </div>
+    </app-page-header>
 
     <app-playlist-grid
       [playlists]="playlists.data() ?? []"

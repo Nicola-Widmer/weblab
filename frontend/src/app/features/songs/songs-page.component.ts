@@ -1,24 +1,40 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { LucideUpload } from '@lucide/angular';
+import { Button } from '@openng/optimus-ui/button';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { songsControllerListOptions } from '../../api/@tanstack/angular-query-experimental.gen';
+import { PageHeaderComponent } from '../../shared/page-header.component';
 import { SongListPanelComponent } from '../../shared/songs/song-list-panel.component';
 import type { SongRow } from '../../shared/songs/song-list.component';
 import { SongUploadComponent } from './song-upload.component';
 
 /**
  * The `/songs` route. Owns the library query and wraps the shared song-list
- * panel in the upload drop zone; every row interaction (play, edit, delete,
- * add-to-playlist) lives in the panel.
+ * panel in the upload drop zone, whose file picker the header's "Add songs"
+ * button opens; every row interaction (play, edit, delete, add-to-playlist)
+ * lives in the panel.
  */
 @Component({
   selector: 'app-songs-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SongUploadComponent, SongListPanelComponent, TranslatePipe],
+  imports: [
+    PageHeaderComponent,
+    SongUploadComponent,
+    SongListPanelComponent,
+    Button,
+    TranslatePipe,
+    LucideUpload,
+  ],
   template: `
-    <h1 class="mb-4">{{ 'songs.title' | translate }}</h1>
+    <app-page-header [title]="'songs.title' | translate">
+      <p-button size="small" [disabled]="upload.busy()" (onClick)="upload.pick()">
+        <svg lucideUpload class="mr-2 size-4"></svg>
+        {{ 'songs.upload.button' | translate }}
+      </p-button>
+    </app-page-header>
 
-    <app-song-upload>
+    <app-song-upload #upload>
       <app-song-list-panel
         [rows]="rows()"
         [isPending]="songs.isPending()"

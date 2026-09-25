@@ -1,8 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  type ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { injectMutation, QueryClient } from '@tanstack/angular-query-experimental';
-import { LucideUpload } from '@lucide/angular';
-import { Button } from '@openng/optimus-ui/button';
 import {
   songsControllerListQueryKey,
   songsControllerUploadMutation,
@@ -12,15 +18,15 @@ import {
 const ACCEPTED_TYPE = 'audio/mpeg';
 
 /**
- * Upload shell around the song list: an explicit "Add songs" button plus a
- * drop zone that spans the whole projected table. Dragging files anywhere over
- * the list shows an overlay; dropping (or picking) queues each .mp3 through the
+ * Upload shell around the song list: a drop zone that spans the whole
+ * projected table, plus `pick()` for the host's "Add songs" button. Dragging
+ * files anywhere over the list shows an overlay; dropping (or picking) queues each .mp3 through the
  * upload mutation and refreshes the library once the batch settles.
  */
 @Component({
   selector: 'app-song-upload',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslatePipe, Button, LucideUpload],
+  imports: [TranslatePipe],
   template: `
     <div
       class="relative"
@@ -29,15 +35,9 @@ const ACCEPTED_TYPE = 'audio/mpeg';
       (dragleave)="onDragLeave()"
       (drop)="onDrop($event)"
     >
-      <div class="mb-3 flex items-center justify-between gap-3">
-        <p class="text-sm text-surface-500 dark:text-surface-400">
-          {{ 'songs.upload.hint' | translate }}
-        </p>
-        <p-button size="small" [disabled]="pending() > 0" (onClick)="picker.click()">
-          <svg lucideUpload class="mr-2 size-4"></svg>
-          {{ 'songs.upload.button' | translate }}
-        </p-button>
-      </div>
+      <p class="mb-3 text-sm text-surface-500 dark:text-surface-400">
+        {{ 'songs.upload.hint' | translate }}
+      </p>
 
       <ng-content />
 
@@ -90,8 +90,18 @@ export class SongUploadComponent {
   /** Uploads that errored in the current batch. */
   protected readonly failed = signal(0);
 
+  /** True while a batch is uploading; the host disables its button meanwhile. */
+  readonly busy = computed(() => this.pending() > 0);
+
+  private readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
+
   /** dragenter/dragleave fire per child element; count depth to stay stable. */
   private dragDepth = 0;
+
+  /** Opens the native file picker. */
+  pick(): void {
+    this.picker().nativeElement.click();
+  }
 
   onDragEnter(event: DragEvent): void {
     if (!hasFiles(event)) return;
