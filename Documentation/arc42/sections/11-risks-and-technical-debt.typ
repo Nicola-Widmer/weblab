@@ -15,6 +15,13 @@
   [Bundle size], [Initial bundle over Angular's 1 MB warning.], [Low priority:
    self-hosted.],
   [S3 storage], [Adapter not built; only local filesystem.], [Optional (Could).],
+  [Logging and telemetry], [Only a few places log, via NestJS's default
+   console `Logger` (OIDC controller, session sweeper, playlist sweep).
+   No structured (JSON) logs, no request or correlation IDs, and nothing
+   logs the async domain events. No metrics, tracing or health endpoint.
+   The frontend reports no errors.], [Open. Failures in production show up
+   only in container stdout. A fix would add structured logging (e.g.
+   pino), a health check and OpenTelemetry.],
   [Dev credentials], [The compose stack is dev-only. The Keycloak realm import
    seeds user `dev`/`dev` and client secret `dev-secret-change-me`. Keycloak
    runs `start-dev` with admin `admin`/`admin` and self-registration on.
