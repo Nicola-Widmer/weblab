@@ -37,6 +37,7 @@ scripts/          helper scripts for e2e/a11y tooling (not shipped in the build)
 | `pnpm build` | production build → `dist/` |
 | `pnpm test` | unit tests (Vitest via `ng test`) |
 | `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm lint` | ESLint (`angular-eslint` recommended + template a11y rules; skips generated `src/app/api/`) |
 | `pnpm generate:api` | regenerate `src/app/api/` from `../backend/openapi.json` (commit it) |
 | `pnpm e2e` | Playwright against `https://localhost:8443` — bring up Compose first (`docker compose up -d` at the repo root) |
 | `pnpm a11y` | pa11y-ci (WCAG2AA) against the same live Compose stack |

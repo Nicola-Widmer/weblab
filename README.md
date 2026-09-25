@@ -40,7 +40,7 @@ come up with it. The API runs migrations on start. Auth is on by default
 single implicit local user
 ([ADR-0005](Documentation/adr/0005-session-cookie-auth.typ)).
 
-Optional S3-compatible storage (runs MinIO):
+Optional S3-compatible storage (runs MinIO): NOT IMPLEMENTED YET
 
 ```bash
 docker compose --profile storage-s3 up
