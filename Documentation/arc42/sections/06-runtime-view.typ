@@ -66,7 +66,7 @@ sequenceDiagram
   participant DB as SongRepository
   U->>C: drop .mp3
   C->>API: POST /api/songs (multipart)
-  API->>API: check MP3, ≤ 20 MB, read ID3
+  API->>API: check MIME + extension, ≤ 20 MB, magic bytes, read ID3
   API->>FS: put(audio), put(cover)
   API->>DB: save(song)
   API-->>C: 201 song

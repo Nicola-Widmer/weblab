@@ -29,7 +29,7 @@ flowchart LR
   [Q2], [User A requests B's song.], [`404`.],
   [Q3], [`docker compose up` on a machine with only Docker.], [App on `:8443`,
    migrations applied, no manual step.],
-  [Q4], [Upload of a 25 MB file or a non-MP3.], [`400`; nothing stored.],
+  [Q4], [Upload of a 25 MB file, a non-MP3, or a non-MP3 renamed to `.mp3`.], [`400`; nothing stored.],
   [Q5], [New `playlists` use case.], [Unit-testable with fake ports.],
   [Q6], [OS "reduce motion" is on.], [Disc does not spin; audio works.],
   [Q7], [Delete a playing song that is in 3 playlists.], [Row and file gone,

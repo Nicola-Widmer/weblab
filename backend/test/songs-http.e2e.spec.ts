@@ -73,10 +73,19 @@ describe('songs HTTP: upload, audio range, cover', () => {
     expect(res.status).toBe(400);
   });
 
+  it('rejects an .mp3 whose bytes are not an MP3 (400)', async () => {
+    const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    const res = await api()
+      .post('/api/songs')
+      .attach('file', png, { filename: 'fake.mp3', contentType: 'audio/mpeg' });
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe('File content is not an MP3');
+  });
+
   it('rejects an .mp3 that cannot be parsed (400)', async () => {
     const res = await api()
       .post('/api/songs')
-      .attach('file', Buffer.from('not really an mp3'), {
+      .attach('file', Buffer.from('ID3 but not really an mp3'), {
         filename: 'broken.mp3',
         contentType: 'audio/mpeg',
       });

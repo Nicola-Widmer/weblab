@@ -148,7 +148,8 @@ Dashed arrows are id references across contexts.
    expires. Tokens never leave the server.],
   [`Song`], [`title` not empty (falls back to the filename). `duration`,
    `audio`, `coverArt` never change. Upload must be `audio/mpeg`, `.mp3`,
-   ≤ 20 MB, with a readable duration.],
+   ≤ 20 MB, start with MP3 magic bytes (`ID3` tag or MPEG frame sync), with a
+   readable duration.],
   [`Playlist`], [`name` not empty (duplicates allowed). `position` is always
    `0…n-1`. `reorder` must be a permutation of the current entries. The same
    `songId` may repeat — each occurrence has its own entry id.],

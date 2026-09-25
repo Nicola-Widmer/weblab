@@ -55,6 +55,9 @@ export class SongsService {
     if (file.bytes.length > MAX_UPLOAD_BYTES) {
       throw new BadRequestException('File exceeds the 20 MB limit');
     }
+    if (!hasMp3MagicBytes(file.bytes)) {
+      throw new BadRequestException('File content is not an MP3');
+    }
 
     const tags = await this.id3.read(file.bytes);
     if (tags.durationSeconds === undefined) {
@@ -130,4 +133,16 @@ export class SongsService {
     const bytes = await this.files.getRange(song.coverArt.storageKey);
     return { ...bytes, contentType: song.coverArt.contentType };
   }
+}
+
+/**
+ * The client's MIME type and filename are just claims; check the actual bytes.
+ * An MP3 starts with an ID3v2 tag (`ID3`) or directly with an MPEG audio frame
+ * sync (11 set bits).
+ */
+function hasMp3MagicBytes(bytes: Buffer): boolean {
+  if (bytes.length < 3) return false;
+  const id3 = bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33;
+  const frameSync = bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0;
+  return id3 || frameSync;
 }
