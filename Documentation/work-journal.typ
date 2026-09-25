@@ -12,7 +12,7 @@
   (date: "02.09.2026", time: 4, comments: "Domain Model, Boilerplate, DTOs, OpenAPI spec with generated HTTP Client"),
   (date: "02.09.2026", time: 4, comments: "Frontend API, Local File Storage, ID3 Reader, Simple Frontend"),
   (date: "03.09.2026", time: 7, comments: "Song/Playlist View, Song Streaming"),
-  (date: "04.09.2026", time: 8, comments: "Auth Slice"),
+  (date: "04.09.2026", time: 7, comments: "Auth Slice"),
   (date: "05.09.2026", time: 7, comments: "Vinyl Player, Mobile and Animation Performance Improvements, Song Reordering"),
   (date: "06.09.2026", time: 5, comments: "Song Delete via CQRS, Skeleton Loaders"),
   (date: "16.09.2026", time: 3, comments: "NDC Talks about AI and Security"),
@@ -20,7 +20,10 @@
   (date: "18.09.2026", time: 2, comments: "NDC Talks about Vibecoding"),
   (date: "21.09.2026", time: 3, comments: "Refactoring, Accessibilty Improvements"),
   (date: "22.09.2026", time: 3, comments: "Pagespeed/Lighthouse"),
-  (date: "", time: 0, comments: ""),
+  (date: "23.09.2026", time: 3, comments: "Update Docs, Increase Test Coverage"),
+  (date: "24.09.2026", time: 2, comments: "UI Improvements, Personal Reflection"),
+  (date: "25.09.2026", time: 2, comments: "Mobile UI Nav Fix, Personal Reflection, eslint, Documentation"),
+
 )
 
 #let total = entries.map(e => e.time).sum()
