@@ -22,7 +22,7 @@
   (date: "22.09.2026", time: 3, comments: "Pagespeed/Lighthouse"),
   (date: "23.09.2026", time: 3, comments: "Update Docs, Increase Test Coverage"),
   (date: "24.09.2026", time: 2, comments: "UI Improvements, Personal Reflection"),
-  (date: "25.09.2026", time: 2, comments: "Mobile UI Nav Fix, Personal Reflection, eslint, Documentation"),
+  (date: "25.09.2026", time: 3, comments: "Mobile UI Nav Fix, Personal Reflection, eslint, Documentation, more tests"),
 
 )
 
