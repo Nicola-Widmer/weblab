@@ -26,16 +26,28 @@ import { AuthService } from './auth.service';
           <svg lucideCircleUser class="size-5"></svg>
           <span class="hidden sm:inline">{{ user.email }}</span>
         </span>
-        <p-button size="small" severity="secondary" [text]="true" (onClick)="auth.logout()">
-          <svg lucideLogOut class="mr-2 size-4"></svg>
-          {{ 'auth.logout' | translate }}
+        <p-button
+          size="small"
+          severity="secondary"
+          [text]="true"
+          [ariaLabel]="'auth.logout' | translate"
+          (onClick)="auth.logout()"
+        >
+          <svg lucideLogOut class="size-4 sm:mr-2"></svg>
+          <span class="hidden sm:inline">{{ 'auth.logout' | translate }}</span>
         </p-button>
       </div>
     } @else if (me.isError()) {
       <div class="flex items-center gap-2 text-sm">
-        <p-button size="small" severity="secondary" [text]="true" (onClick)="auth.register()">
-          <svg lucideUserPlus class="mr-2 size-4"></svg>
-          {{ 'auth.register' | translate }}
+        <p-button
+          size="small"
+          severity="secondary"
+          [text]="true"
+          [ariaLabel]="'auth.register' | translate"
+          (onClick)="auth.register()"
+        >
+          <svg lucideUserPlus class="size-4 sm:mr-2"></svg>
+          <span class="hidden sm:inline">{{ 'auth.register' | translate }}</span>
         </p-button>
         <p-button size="small" (onClick)="auth.login()">
           <svg lucideLogIn class="mr-2 size-4"></svg>

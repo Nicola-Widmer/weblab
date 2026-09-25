@@ -32,11 +32,12 @@ import { PlaylistRenameFormComponent } from './playlist-rename-form.component';
         <div
           class="flex aspect-square items-center justify-center rounded-lg bg-surface-100 dark:bg-surface-800"
         >
-          <svg lucideListMusic class="size-10 text-surface-400"></svg>
+          <svg lucideListMusic class="size-8 text-surface-400 sm:size-10"></svg>
         </div>
         <!-- Kept in flow while editing (just hidden) so the card height doesn't
-             jump when the overlaid rename form takes over. -->
-        <div class="min-w-0" [class.invisible]="editing()">
+             jump when the overlaid rename form takes over. From sm up the
+             hover actions sit beside the text, so keep it clear of them. -->
+        <div class="min-w-0 sm:pr-16" [class.invisible]="editing()">
           <p class="truncate font-semibold">{{ playlist().name }}</p>
           <p class="text-sm text-surface-500 dark:text-surface-400">
             {{ 'playlists.card.tracks' | translate: { count: playlist().trackCount } }}
@@ -52,8 +53,10 @@ import { PlaylistRenameFormComponent } from './playlist-rename-form.component';
           (cancelled)="editing.set(false)"
         />
       } @else {
+        <!-- Phones: always visible, over the cover's corner (a narrow card has
+             no room beside the text). sm+: revealed on hover beside the text. -->
         <div
-          class="absolute bottom-3 right-2 flex gap-1 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100"
+          class="absolute right-5 top-5 flex gap-1 rounded-full bg-surface-0/80 opacity-100 transition sm:bottom-3 sm:right-2 sm:top-auto sm:bg-transparent sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 dark:bg-surface-950/60 sm:dark:bg-transparent"
         >
           <p-button
             type="button"

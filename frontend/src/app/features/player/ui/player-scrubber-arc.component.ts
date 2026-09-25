@@ -130,7 +130,7 @@ const mmss = (seconds: number): string => {
       outline: none;
     }
     svg:focus-visible .handle {
-      r: 4.6;
+      r: 4.6px;
     }
     :host(.disabled) svg {
       opacity: 0.4;

@@ -2,7 +2,7 @@
   <header
     class="sticky top-0 z-20 border-b border-surface-200 bg-surface-0/80 backdrop-blur dark:border-surface-800 dark:bg-surface-950/80"
   >
-    <div class="mx-auto flex max-w-5xl items-center gap-6 px-4 py-3">
+    <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:gap-6">
       <a routerLink="/" class="flex items-center gap-2">
         <svg lucideDisc3 class="size-6 text-primary-500"></svg>
         <span class="text-lg font-semibold">{{ 'app.title' | translate }}</span>
@@ -10,21 +10,23 @@
       <nav class="flex items-center gap-1 text-sm font-medium">
         <a
           routerLink="/songs"
+          [attr.aria-label]="'library.views.songs' | translate"
           routerLinkActive
           ariaCurrentWhenActive="page"
           class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-surface-500 transition hover:bg-surface-100 hover:text-surface-900 aria-[current=page]:bg-primary-500/10 aria-[current=page]:text-primary-600 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-0 dark:aria-[current=page]:bg-primary-400/10 dark:aria-[current=page]:text-primary-400"
         >
           <svg lucideMusic class="size-4"></svg>
-          {{ 'library.views.songs' | translate }}
+          <span class="hidden sm:inline">{{ 'library.views.songs' | translate }}</span>
         </a>
         <a
           routerLink="/playlists"
+          [attr.aria-label]="'library.views.playlists' | translate"
           routerLinkActive
           ariaCurrentWhenActive="page"
           class="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-surface-500 transition hover:bg-surface-100 hover:text-surface-900 aria-[current=page]:bg-primary-500/10 aria-[current=page]:text-primary-600 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-0 dark:aria-[current=page]:bg-primary-400/10 dark:aria-[current=page]:text-primary-400"
         >
           <svg lucideListMusic class="size-4"></svg>
-          {{ 'library.views.playlists' | translate }}
+          <span class="hidden sm:inline">{{ 'library.views.playlists' | translate }}</span>
         </a>
       </nav>
       <app-user-menu class="ml-auto" />
