@@ -10,6 +10,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
 import { installAuthRedirect } from './auth/auth-redirect';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { provideOptimus } from '@openng/optimus-ui/config';
 import Aura from '@openng/optimus-ui-themes/aura';
 import { definePreset } from '@openng/optimus-ui-themes';
@@ -51,6 +52,8 @@ export const appConfig: ApplicationConfig = {
       }),
     ),
     provideOptimus({ theme: { preset: AppPreset } }),
+    // Backs the app-wide <p-confirmdialog> (see shared/confirm.service.ts).
+    ConfirmationService,
     provideHttpClient(),
     provideTranslateService({
       lang: 'en',

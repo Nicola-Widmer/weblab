@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { provideTranslateService } from '@ngx-translate/core';
+import { ConfirmationService } from '@openng/optimus-ui/api';
 import { QueryClient, provideTanStackQuery } from '@tanstack/angular-query-experimental';
 import { App } from './app';
 import { routes } from './app.routes';
@@ -16,6 +17,7 @@ describe('App', () => {
         provideRouter(routes),
         provideTanStackQuery(new QueryClient()),
         provideTranslateService({ fallbackLang: 'en' }),
+        ConfirmationService,
       ],
     }).compileComponents();
   });

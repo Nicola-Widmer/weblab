@@ -37,4 +37,9 @@
     <router-outlet />
   </main>
 </div>
-<app-player />
+<!-- Single host for every ConfirmService.ask() prompt -->
+<p-confirmdialog [style]="{ width: '28rem' }" [breakpoints]="{ '640px': '90vw' }" />
+<!-- Player bar (+ forms/slider) stays out of the initial bundle -->
+@defer (on idle) {
+  <app-player />
+}

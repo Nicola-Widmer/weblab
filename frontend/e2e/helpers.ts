@@ -27,11 +27,20 @@ export async function uploadSong(page: Page, title: string): Promise<void> {
   await expect(songRow(page, title)).toBeVisible();
 }
 
-/** Deletes the song row titled `title`, accepting the confirm dialog. */
+/** Clicks `label` in the open confirm modal (`<p-confirmdialog>`) and waits for it to close. */
+export async function acceptConfirm(page: Page, label: string): Promise<void> {
+  // Not getByRole('alertdialog'): optimus-ui puts that role on both the
+  // <p-dialog> host and the modal root, so it would match two elements.
+  const modal = page.locator('.p-confirmdialog');
+  await modal.getByRole('button', { name: label, exact: true }).click();
+  await expect(modal).toBeHidden();
+}
+
+/** Deletes the song row titled `title`, accepting the confirm modal. */
 export async function deleteSong(page: Page, title: string): Promise<void> {
-  page.once('dialog', (dialog) => dialog.accept());
   await songRow(page, title).getByRole('button', { name: 'More actions' }).click();
   await page.getByRole('menuitem', { name: 'Delete' }).click();
+  await acceptConfirm(page, 'Delete');
   await expect(songRow(page, title)).toBeHidden();
 }
 
@@ -51,12 +60,12 @@ export async function openPlaylist(page: Page, name: string): Promise<void> {
   await expect(page.getByRole('heading', { name })).toBeVisible();
 }
 
-/** Deletes the playlist `name` from `/playlists`, accepting the confirm dialog. */
+/** Deletes the playlist `name` from `/playlists`, accepting the confirm modal. */
 export async function deletePlaylist(page: Page, name: string): Promise<void> {
   await page.goto('/playlists');
-  page.once('dialog', (dialog) => dialog.accept());
   const card = page.locator('.group', { hasText: name });
   await card.getByRole('button', { name: 'Delete playlist' }).click();
+  await acceptConfirm(page, 'Delete');
   await expect(card).toBeHidden();
 }
 

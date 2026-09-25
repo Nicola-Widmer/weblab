@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { injectMutation, injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import type { PlaylistDto, PlaylistEntryDto, SongDto } from '../../api';
 import {
@@ -13,6 +13,7 @@ import {
   songsControllerRemoveMutation,
 } from '../../api/@tanstack/angular-query-experimental.gen';
 import { PlayerService } from '../../features/player/player.service';
+import { ConfirmService } from '../confirm.service';
 import { SongEditDialogComponent } from './song-edit-dialog.component';
 import { SongListComponent, type SongRow } from './song-list.component';
 
@@ -62,7 +63,7 @@ import { SongListComponent, type SongRow } from './song-list.component';
 export class SongListPanelComponent {
   readonly #queryClient = inject(QueryClient);
   readonly #player = inject(PlayerService);
-  readonly #translate = inject(TranslateService);
+  readonly #confirm = inject(ConfirmService);
 
   /** Rows to render, in display order. */
   readonly rows = input<SongRow[]>([]);
@@ -164,20 +165,28 @@ export class SongListPanelComponent {
     this.addEntry.mutate({ path: { id: playlistId }, body: { songId: song.id } });
   }
 
-  remove(song: SongDto): void {
-    const prompt = this.#translate.instant('songs.delete.confirm', { title: song.title });
-    if (!confirm(prompt)) return;
+  async remove(song: SongDto): Promise<void> {
+    const ok = await this.#confirm.ask({
+      header: 'songs.delete.header',
+      message: 'songs.delete.confirm',
+      params: { title: song.title },
+      acceptLabel: 'songs.delete.accept',
+    });
+    if (!ok) return;
     if (this.#player.current()?.id === song.id) this.#player.stop();
     this.removal.mutate({ path: { id: song.id } });
   }
 
-  removeFromPlaylist({ song, entryId }: { song: SongDto; entryId: string }): void {
+  async removeFromPlaylist({ song, entryId }: { song: SongDto; entryId: string }): Promise<void> {
     const playlist = this.playlist();
     if (!playlist) return;
-    const prompt = this.#translate.instant('songs.removeFromPlaylist.confirm', {
-      title: song.title,
+    const ok = await this.#confirm.ask({
+      header: 'songs.removeFromPlaylist.header',
+      message: 'songs.removeFromPlaylist.confirm',
+      params: { title: song.title },
+      acceptLabel: 'songs.removeFromPlaylist.accept',
     });
-    if (!confirm(prompt)) return;
+    if (!ok) return;
     this.entryRemoval.mutate({ path: { id: playlist.id, entryId } });
   }
 }

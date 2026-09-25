@@ -2,6 +2,9 @@
   "app": {
     "title": "ToneArm"
   },
+  "confirm": {
+    "cancel": "Cancel"
+  },
   "library": {
     "views": {
       "songs": "Songs",
@@ -27,7 +30,9 @@
       "cancel": "Cancel"
     },
     "delete": {
-      "confirm": "Delete “{{name}}”? This can’t be undone."
+      "header": "Delete playlist",
+      "confirm": "Delete “{{name}}”? This can’t be undone.",
+      "accept": "Delete"
     },
     "create": {
       "title": "New playlist",
@@ -89,11 +94,15 @@
       "error": "Couldn’t save changes."
     },
     "delete": {
+      "header": "Delete song",
       "confirm": "Delete “{{title}}”? This can’t be undone.",
+      "accept": "Delete",
       "error": "Couldn’t delete the song."
     },
     "removeFromPlaylist": {
+      "header": "Remove from playlist",
       "confirm": "Remove “{{title}}” from this playlist?",
+      "accept": "Remove",
       "error": "Couldn’t remove the song from the playlist."
     },
     "reorder": {

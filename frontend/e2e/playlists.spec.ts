@@ -1,5 +1,5 @@
 import { test, expect } from './coverage';
-import { deleteSong, songRow, uploadSong } from './helpers';
+import { acceptConfirm, deleteSong, songRow, uploadSong } from './helpers';
 
 test.describe('playlists', () => {
   test('create, add a song, remove it, rename, then delete', async ({ page }) => {
@@ -30,9 +30,9 @@ test.describe('playlists', () => {
     await page.locator('.group', { hasText: playlistName }).getByRole('link').click();
     await expect(songRow(page, songTitle)).toBeVisible();
 
-    page.once('dialog', (dialog) => dialog.accept());
     await songRow(page, songTitle).getByRole('button', { name: 'More actions' }).click();
     await page.getByRole('menuitem', { name: 'Remove from Playlist' }).click();
+    await acceptConfirm(page, 'Remove');
     await expect(page.getByText('No songs in this playlist yet.')).toBeVisible();
 
     await page.goto('/playlists');
@@ -42,11 +42,11 @@ test.describe('playlists', () => {
     await renameCard.getByRole('button', { name: 'Save name' }).click();
     await expect(page.locator('.group', { hasText: renamedPlaylist })).toBeVisible();
 
-    page.once('dialog', (dialog) => dialog.accept());
     await page
       .locator('.group', { hasText: renamedPlaylist })
       .getByRole('button', { name: 'Delete playlist' })
       .click();
+    await acceptConfirm(page, 'Delete');
     await expect(page.locator('.group', { hasText: renamedPlaylist })).toBeHidden();
 
     await page.goto('/songs');

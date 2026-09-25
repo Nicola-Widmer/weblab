@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucidePlus } from '@lucide/angular';
 import { Button } from '@openng/optimus-ui/button';
 import { injectMutation, injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
@@ -10,6 +10,7 @@ import {
   playlistsControllerRemoveMutation,
   playlistsControllerRenameMutation,
 } from '../../api/@tanstack/angular-query-experimental.gen';
+import { ConfirmService } from '../../shared/confirm.service';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { PlaylistCreateDialogComponent } from './playlist-create-dialog.component';
 import { PlaylistGridComponent } from './ui/playlist-grid.component';
@@ -55,7 +56,7 @@ import { PlaylistGridComponent } from './ui/playlist-grid.component';
 })
 export default class PlaylistsPageComponent {
   readonly #queryClient = inject(QueryClient);
-  readonly #translate = inject(TranslateService);
+  readonly #confirm = inject(ConfirmService);
 
   protected readonly playlists = injectQuery(() => playlistsControllerListOptions());
   protected readonly creating = signal(false);
@@ -76,9 +77,14 @@ export default class PlaylistsPageComponent {
     this.renameMutation.mutate({ path: { id }, body: { name } });
   }
 
-  protected remove(playlist: PlaylistDto): void {
-    const prompt = this.#translate.instant('playlists.delete.confirm', { name: playlist.name });
-    if (!confirm(prompt)) return;
+  protected async remove(playlist: PlaylistDto): Promise<void> {
+    const ok = await this.#confirm.ask({
+      header: 'playlists.delete.header',
+      message: 'playlists.delete.confirm',
+      params: { name: playlist.name },
+      acceptLabel: 'playlists.delete.accept',
+    });
+    if (!ok) return;
     this.removeMutation.mutate({ path: { id: playlist.id } });
   }
 }
