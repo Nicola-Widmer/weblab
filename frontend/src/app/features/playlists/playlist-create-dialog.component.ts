@@ -55,8 +55,8 @@ import {
   `,
 })
 export class PlaylistCreateDialogComponent {
-  private readonly queryClient = inject(QueryClient);
-  private readonly translate = inject(TranslateService);
+  readonly #queryClient = inject(QueryClient);
+  readonly #translate = inject(TranslateService);
 
   /** Two-way bound by the host to show / hide the dialog. */
   readonly open = model(false);
@@ -65,14 +65,14 @@ export class PlaylistCreateDialogComponent {
 
   protected readonly f = form(this.model, (path) => {
     required(path.name, {
-      message: () => this.translate.instant('playlists.create.nameRequired'),
+      message: () => this.#translate.instant('playlists.create.nameRequired'),
     });
   });
 
   protected readonly mutation = injectMutation(() => ({
     ...playlistsControllerCreateMutation(),
     onSuccess: () => {
-      this.queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
+      this.#queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
       this.close();
     },
   }));

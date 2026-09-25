@@ -70,8 +70,8 @@ import {
   `,
 })
 export class SongEditDialogComponent {
-  private readonly queryClient = inject(QueryClient);
-  private readonly translate = inject(TranslateService);
+  readonly #queryClient = inject(QueryClient);
+  readonly #translate = inject(TranslateService);
 
   readonly song = input<SongDto | null>(null);
   readonly closed = output<void>();
@@ -88,17 +88,17 @@ export class SongEditDialogComponent {
 
   protected readonly f = form(this.model, (path) => {
     required(path.title, {
-      message: () => this.translate.instant('songs.edit.titleRequired'),
+      message: () => this.#translate.instant('songs.edit.titleRequired'),
     });
     maxLength(path.title, 200, {
-      message: () => this.translate.instant('songs.edit.titleTooLong'),
+      message: () => this.#translate.instant('songs.edit.titleTooLong'),
     });
   });
 
   protected readonly mutation = injectMutation(() => ({
     ...songsControllerRetagMutation(),
     onSuccess: () => {
-      this.queryClient.invalidateQueries({
+      this.#queryClient.invalidateQueries({
         queryKey: songsControllerListQueryKey(),
       });
       this.close();

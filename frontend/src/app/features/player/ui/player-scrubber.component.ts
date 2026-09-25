@@ -57,15 +57,15 @@ export class PlayerScrubberComponent {
   readonly seek = output<number>();
   protected readonly fmt = mmss;
 
-  private readonly scrubTo = signal<number | null>(null);
-  protected readonly position = computed(() => this.scrubTo() ?? this.currentTime());
+  readonly #scrubTo = signal<number | null>(null);
+  protected readonly position = computed(() => this.#scrubTo() ?? this.currentTime());
 
   constructor() {
     // Release the held position once playback has caught up to it.
     effect(() => {
-      const target = this.scrubTo();
+      const target = this.#scrubTo();
       if (target !== null && Math.abs(this.currentTime() - target) < 1) {
-        this.scrubTo.set(null);
+        this.#scrubTo.set(null);
       }
     });
   }
@@ -73,14 +73,14 @@ export class PlayerScrubberComponent {
   /** Fires continuously while dragging: move the handle only, leave playback be. */
   protected preview(event: SliderChangeEvent): void {
     const value = event.value ?? 0;
-    this.scrubTo.set(value);
+    this.#scrubTo.set(value);
     // Keyboard steps emit no slide-end, so seek right away for those.
     if (event.event instanceof KeyboardEvent) this.seek.emit(value);
   }
 
   /** Drag released or track clicked: now move playback. */
   protected commit(value: number): void {
-    this.scrubTo.set(value);
+    this.#scrubTo.set(value);
     this.seek.emit(value);
   }
 }

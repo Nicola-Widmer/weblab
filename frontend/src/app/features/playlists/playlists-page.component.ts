@@ -54,8 +54,8 @@ import { PlaylistGridComponent } from './ui/playlist-grid.component';
   `,
 })
 export default class PlaylistsPageComponent {
-  private readonly queryClient = inject(QueryClient);
-  private readonly translate = inject(TranslateService);
+  readonly #queryClient = inject(QueryClient);
+  readonly #translate = inject(TranslateService);
 
   protected readonly playlists = injectQuery(() => playlistsControllerListOptions());
   protected readonly creating = signal(false);
@@ -63,13 +63,13 @@ export default class PlaylistsPageComponent {
   protected readonly renameMutation = injectMutation(() => ({
     ...playlistsControllerRenameMutation(),
     onSuccess: () =>
-      this.queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() }),
+      this.#queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() }),
   }));
 
   protected readonly removeMutation = injectMutation(() => ({
     ...playlistsControllerRemoveMutation(),
     onSuccess: () =>
-      this.queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() }),
+      this.#queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() }),
   }));
 
   protected rename({ id, name }: { id: string; name: string }): void {
@@ -77,7 +77,7 @@ export default class PlaylistsPageComponent {
   }
 
   protected remove(playlist: PlaylistDto): void {
-    const prompt = this.translate.instant('playlists.delete.confirm', { name: playlist.name });
+    const prompt = this.#translate.instant('playlists.delete.confirm', { name: playlist.name });
     if (!confirm(prompt)) return;
     this.removeMutation.mutate({ path: { id: playlist.id } });
   }

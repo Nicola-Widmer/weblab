@@ -149,89 +149,89 @@ export class PlayerTurntableComponent {
    * The idle angle reads as clearly "parked"; the arm's swing stays inside the
    * square stage, well clear of the drawer's clipped rounded corners.
    */
-  protected readonly armTransform = computed(() => `rotate(${this.armEngaged() ? 5 : 40}deg)`);
+  protected readonly armTransform = computed(() => `rotate(${this.#armEngaged() ? 5 : 40}deg)`);
 
-  private readonly armEngaged = signal(false);
+  readonly #armEngaged = signal(false);
 
   private readonly discRef = viewChild<ElementRef<HTMLElement>>('disc');
-  private readonly destroyRef = inject(DestroyRef);
+  readonly #destroyRef = inject(DestroyRef);
 
-  private readonly reduceMotion =
+  readonly #reduceMotion =
     typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  private spin?: Animation;
-  private rafId = 0;
-  private timer: ReturnType<typeof setTimeout> | undefined;
+  #spin?: Animation;
+  #rafId = 0;
+  #timer: ReturnType<typeof setTimeout> | undefined;
   /** Whether the record should currently be turning (playing AND a song loaded). */
-  private desired = false;
+  #desired = false;
 
   constructor() {
     effect(() => {
       const next = this.playing() && this.song() != null;
-      untracked(() => this.onDesiredChange(next));
+      untracked(() => this.#onDesiredChange(next));
     });
 
     afterNextRender(() => {
-      this.setup();
+      this.#setup();
       requestAnimationFrame(() => this.ready.set(true));
 
       const onVisibility = (): void => {
-        if (!this.spin) return;
-        if (document.hidden) this.spin.pause();
-        else if (this.desired && !this.reduceMotion) this.spin.play();
+        if (!this.#spin) return;
+        if (document.hidden) this.#spin.pause();
+        else if (this.#desired && !this.#reduceMotion) this.#spin.play();
       };
       document.addEventListener('visibilitychange', onVisibility);
-      this.destroyRef.onDestroy(() => {
+      this.#destroyRef.onDestroy(() => {
         document.removeEventListener('visibilitychange', onVisibility);
-        clearTimeout(this.timer);
-        cancelAnimationFrame(this.rafId);
-        this.spin?.cancel();
+        clearTimeout(this.#timer);
+        cancelAnimationFrame(this.#rafId);
+        this.#spin?.cancel();
       });
     });
   }
 
   /** Build the rotation and snap it to the current state — no ramp on open. */
-  private setup(): void {
+  #setup(): void {
     const el = this.discRef()?.nativeElement;
-    if (el && typeof el.animate === 'function' && !this.reduceMotion) {
-      this.spin = el.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {
+    if (el && typeof el.animate === 'function' && !this.#reduceMotion) {
+      this.#spin = el.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {
         duration: REV_MS,
         iterations: Infinity,
         easing: 'linear',
       });
-      this.spin.playbackRate = this.desired ? 1 : 0;
-      if (this.desired && !document.hidden) this.spin.play();
-      else this.spin.pause();
+      this.#spin.playbackRate = this.#desired ? 1 : 0;
+      if (this.#desired && !document.hidden) this.#spin.play();
+      else this.#spin.pause();
     }
-    clearTimeout(this.timer);
-    this.armEngaged.set(this.desired);
+    clearTimeout(this.#timer);
+    this.#armEngaged.set(this.#desired);
   }
 
   /** React to a play/pause (or song) change once the component is live. */
-  private onDesiredChange(next: boolean): void {
-    if (next === this.desired) return;
-    this.desired = next;
-    clearTimeout(this.timer);
+  #onDesiredChange(next: boolean): void {
+    if (next === this.#desired) return;
+    this.#desired = next;
+    clearTimeout(this.#timer);
 
     if (next) {
-      this.rampTo(1, SPIN_UP_MS, easeOutCubic);
-      this.timer = setTimeout(() => this.armEngaged.set(true), ARM_DROP_MS);
+      this.#rampTo(1, SPIN_UP_MS, easeOutCubic);
+      this.#timer = setTimeout(() => this.#armEngaged.set(true), ARM_DROP_MS);
     } else {
-      this.timer = setTimeout(() => {
-        this.armEngaged.set(false);
-        this.rampTo(0, SPIN_DOWN_MS, linear);
+      this.#timer = setTimeout(() => {
+        this.#armEngaged.set(false);
+        this.#rampTo(0, SPIN_DOWN_MS, linear);
       }, GUARD_MS);
     }
   }
 
   /** Ease `playbackRate` toward `target` over `ms`, keeping rotation on the compositor. */
-  private rampTo(target: number, ms: number, ease: (t: number) => number): void {
-    const spin = this.spin;
-    if (!spin || this.reduceMotion) {
+  #rampTo(target: number, ms: number, ease: (t: number) => number): void {
+    const spin = this.#spin;
+    if (!spin || this.#reduceMotion) {
       if (spin) spin.playbackRate = target;
       return;
     }
-    cancelAnimationFrame(this.rafId);
+    cancelAnimationFrame(this.#rafId);
     const from = spin.playbackRate;
     if (Math.abs(from - target) < 0.001) {
       spin.playbackRate = target;
@@ -244,9 +244,9 @@ export class PlayerTurntableComponent {
     const step = (now: number): void => {
       const t = Math.min(1, (now - start) / ms);
       spin.playbackRate = from + (target - from) * ease(t);
-      if (t < 1) this.rafId = requestAnimationFrame(step);
+      if (t < 1) this.#rafId = requestAnimationFrame(step);
       else if (target === 0) spin.pause();
     };
-    this.rafId = requestAnimationFrame(step);
+    this.#rafId = requestAnimationFrame(step);
   }
 }

@@ -78,8 +78,8 @@ const ACCEPTED_TYPE = 'audio/mpeg';
   `,
 })
 export class SongUploadComponent {
-  private readonly queryClient = inject(QueryClient);
-  private readonly mutation = injectMutation(() => songsControllerUploadMutation());
+  readonly #queryClient = inject(QueryClient);
+  readonly #mutation = injectMutation(() => songsControllerUploadMutation());
 
   /** Overlay is shown while files are dragged over the list. */
   protected readonly dragging = signal(false);
@@ -96,7 +96,7 @@ export class SongUploadComponent {
   private readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
 
   /** dragenter/dragleave fire per child element; count depth to stay stable. */
-  private dragDepth = 0;
+  #dragDepth = 0;
 
   /** Opens the native file picker. */
   pick(): void {
@@ -106,7 +106,7 @@ export class SongUploadComponent {
   onDragEnter(event: DragEvent): void {
     if (!hasFiles(event)) return;
     event.preventDefault();
-    this.dragDepth++;
+    this.#dragDepth++;
     this.dragging.set(true);
   }
 
@@ -117,26 +117,26 @@ export class SongUploadComponent {
   }
 
   onDragLeave(): void {
-    if (--this.dragDepth <= 0) {
-      this.dragDepth = 0;
+    if (--this.#dragDepth <= 0) {
+      this.#dragDepth = 0;
       this.dragging.set(false);
     }
   }
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
-    this.dragDepth = 0;
+    this.#dragDepth = 0;
     this.dragging.set(false);
-    this.add(event.dataTransfer?.files);
+    this.#add(event.dataTransfer?.files);
   }
 
   onPick(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.add(input.files);
+    this.#add(input.files);
     input.value = '';
   }
 
-  private add(list: FileList | null | undefined): void {
+  #add(list: FileList | null | undefined): void {
     if (!list?.length) return;
     const files = Array.from(list);
     const accepted = files.filter(
@@ -144,19 +144,19 @@ export class SongUploadComponent {
     );
     this.rejected.set(files.length - accepted.length);
     this.failed.set(0);
-    for (const file of accepted) this.upload(file);
+    for (const file of accepted) this.#upload(file);
   }
 
-  private upload(file: File): void {
+  #upload(file: File): void {
     this.pending.update((n) => n + 1);
-    this.mutation.mutate(
+    this.#mutation.mutate(
       { body: { file } },
       {
         onError: () => this.failed.update((n) => n + 1),
         onSettled: () => {
           this.pending.update((n) => n - 1);
           if (this.pending() === 0) {
-            void this.queryClient.invalidateQueries({
+            void this.#queryClient.invalidateQueries({
               queryKey: songsControllerListQueryKey(),
             });
           }

@@ -156,10 +156,10 @@ export class PlayerScrubberArcComponent {
   protected readonly d = ARC_D;
 
   private readonly svgRef = viewChild.required<ElementRef<SVGSVGElement>>('svg');
-  private readonly scrubTo = signal<number | null>(null);
+  readonly #scrubTo = signal<number | null>(null);
   protected readonly dragging = signal(false);
 
-  protected readonly position = computed(() => this.scrubTo() ?? this.currentTime());
+  protected readonly position = computed(() => this.#scrubTo() ?? this.currentTime());
   protected readonly frac = computed(() => {
     const d = this.duration();
     return d > 0 ? Math.min(1, Math.max(0, this.position() / d)) : 0;
@@ -172,9 +172,9 @@ export class PlayerScrubberArcComponent {
   constructor() {
     // Release the held position once playback has caught up to it.
     effect(() => {
-      const target = this.scrubTo();
+      const target = this.#scrubTo();
       if (target !== null && Math.abs(this.currentTime() - target) < 1) {
-        this.scrubTo.set(null);
+        this.#scrubTo.set(null);
       }
     });
   }
@@ -184,18 +184,18 @@ export class PlayerScrubberArcComponent {
     (e.target as Element).setPointerCapture(e.pointerId);
     this.svgRef().nativeElement.focus();
     this.dragging.set(true);
-    this.scrubTo.set(this.valueAt(e));
+    this.#scrubTo.set(this.#valueAt(e));
     e.preventDefault();
   }
 
   protected move(e: PointerEvent): void {
-    if (this.dragging()) this.scrubTo.set(this.valueAt(e));
+    if (this.dragging()) this.#scrubTo.set(this.#valueAt(e));
   }
 
   protected up(e: PointerEvent): void {
     if (!this.dragging()) return;
-    const value = this.valueAt(e);
-    this.scrubTo.set(value); // still flagged dragging → snaps to the release point
+    const value = this.#valueAt(e);
+    this.#scrubTo.set(value); // still flagged dragging → snaps to the release point
     this.seek.emit(value);
     this.dragging.set(false);
     (e.target as Element).releasePointerCapture?.(e.pointerId);
@@ -225,12 +225,12 @@ export class PlayerScrubberArcComponent {
         return;
     }
     e.preventDefault();
-    this.scrubTo.set(value);
+    this.#scrubTo.set(value);
     this.seek.emit(value);
   }
 
   /** Map a pointer event to a time by its angle around the arc's centre. */
-  private valueAt(e: PointerEvent): number {
+  #valueAt(e: PointerEvent): number {
     const rect = this.svgRef().nativeElement.getBoundingClientRect();
     const px = ((e.clientX - rect.left) / rect.width) * 100 - 50;
     const py = ((e.clientY - rect.top) / rect.height) * 100 - 50;

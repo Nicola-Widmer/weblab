@@ -60,9 +60,9 @@ import { SongListComponent, type SongRow } from './song-list.component';
   `,
 })
 export class SongListPanelComponent {
-  private readonly queryClient = inject(QueryClient);
-  private readonly player = inject(PlayerService);
-  private readonly translate = inject(TranslateService);
+  readonly #queryClient = inject(QueryClient);
+  readonly #player = inject(PlayerService);
+  readonly #translate = inject(TranslateService);
 
   /** Rows to render, in display order. */
   readonly rows = input<SongRow[]>([]);
@@ -82,7 +82,7 @@ export class SongListPanelComponent {
   protected readonly reorderable = computed(() => !!this.playlist() && this.rows().length >= 2);
 
   /** Display order is also the playback queue. */
-  private readonly queue = computed<SongDto[]>(() => this.rows().map((r) => r.song));
+  readonly #queue = computed<SongDto[]>(() => this.rows().map((r) => r.song));
 
   // The row menu's "Add to Playlist" submenu reads this.
   protected readonly playlists = injectQuery(() => playlistsControllerListOptions());
@@ -90,14 +90,14 @@ export class SongListPanelComponent {
   protected readonly removal = injectMutation(() => ({
     ...songsControllerRemoveMutation(),
     onSuccess: () =>
-      this.queryClient.invalidateQueries({ queryKey: songsControllerListQueryKey() }),
+      this.#queryClient.invalidateQueries({ queryKey: songsControllerListQueryKey() }),
   }));
 
   protected readonly entryRemoval = injectMutation(() => ({
     ...playlistsControllerRemoveEntryMutation(),
     onSuccess: (_data, variables) => {
-      this.queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
-      this.queryClient.invalidateQueries({
+      this.#queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
+      this.#queryClient.invalidateQueries({
         queryKey: playlistsControllerGetQueryKey({ path: { id: variables.path.id } }),
       });
     },
@@ -108,8 +108,8 @@ export class SongListPanelComponent {
     // Refresh both the grid (track counts) and the specific playlist's detail
     // query — the latter is what `PlaylistDetailComponent` renders from.
     onSuccess: (_data, variables) => {
-      this.queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
-      this.queryClient.invalidateQueries({
+      this.#queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
+      this.#queryClient.invalidateQueries({
         queryKey: playlistsControllerGetQueryKey({ path: { id: variables.path.id } }),
       });
     },
@@ -124,8 +124,8 @@ export class SongListPanelComponent {
     ...playlistsControllerReorderMutation(),
     onMutate: async (variables) => {
       const key = playlistsControllerGetQueryKey({ path: { id: variables.path.id } });
-      await this.queryClient.cancelQueries({ queryKey: key });
-      const previous = this.queryClient.getQueryData<PlaylistDto>(key);
+      await this.#queryClient.cancelQueries({ queryKey: key });
+      const previous = this.#queryClient.getQueryData<PlaylistDto>(key);
       if (previous) {
         const byId = new Map(previous.entries.map((e) => [e.id, e]));
         const entries = variables.body.entryIds
@@ -134,18 +134,18 @@ export class SongListPanelComponent {
             return entry ? { ...entry, position } : undefined;
           })
           .filter((e): e is PlaylistEntryDto => !!e);
-        this.queryClient.setQueryData<PlaylistDto>(key, { ...previous, entries });
+        this.#queryClient.setQueryData<PlaylistDto>(key, { ...previous, entries });
       }
       return { key, previous };
     },
     onError: (_error, _variables, context) => {
-      if (context?.previous) this.queryClient.setQueryData(context.key, context.previous);
+      if (context?.previous) this.#queryClient.setQueryData(context.key, context.previous);
     },
     onSettled: (_data, _error, variables) => {
-      this.queryClient.invalidateQueries({
+      this.#queryClient.invalidateQueries({
         queryKey: playlistsControllerGetQueryKey({ path: { id: variables.path.id } }),
       });
-      this.queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
+      this.#queryClient.invalidateQueries({ queryKey: playlistsControllerListQueryKey() });
     },
   }));
 
@@ -156,8 +156,8 @@ export class SongListPanelComponent {
   }
 
   play(song: SongDto): void {
-    const queue = this.queue();
-    this.player.play(song, queue.length ? queue : [song]);
+    const queue = this.#queue();
+    this.#player.play(song, queue.length ? queue : [song]);
   }
 
   addToPlaylist({ song, playlistId }: { song: SongDto; playlistId: string }): void {
@@ -165,16 +165,16 @@ export class SongListPanelComponent {
   }
 
   remove(song: SongDto): void {
-    const prompt = this.translate.instant('songs.delete.confirm', { title: song.title });
+    const prompt = this.#translate.instant('songs.delete.confirm', { title: song.title });
     if (!confirm(prompt)) return;
-    if (this.player.current()?.id === song.id) this.player.stop();
+    if (this.#player.current()?.id === song.id) this.#player.stop();
     this.removal.mutate({ path: { id: song.id } });
   }
 
   removeFromPlaylist({ song, entryId }: { song: SongDto; entryId: string }): void {
     const playlist = this.playlist();
     if (!playlist) return;
-    const prompt = this.translate.instant('songs.removeFromPlaylist.confirm', {
+    const prompt = this.#translate.instant('songs.removeFromPlaylist.confirm', {
       title: song.title,
     });
     if (!confirm(prompt)) return;

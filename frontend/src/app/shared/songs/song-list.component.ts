@@ -140,7 +140,7 @@ export class SongListComponent {
     if (event.previousIndex === event.currentIndex) return;
     const next = this.rows().slice();
     moveItemInArray(next, event.previousIndex, event.currentIndex);
-    this.emitOrder(next);
+    this.#emitOrder(next);
   }
 
   protected onMove({ entryId, direction }: { entryId: string; direction: -1 | 1 }): void {
@@ -150,10 +150,10 @@ export class SongListComponent {
     if (from < 0 || to < 0 || to >= rows.length) return;
     const next = rows.slice();
     moveItemInArray(next, from, to);
-    this.emitOrder(next);
+    this.#emitOrder(next);
   }
 
-  private emitOrder(rows: SongRow[]): void {
+  #emitOrder(rows: SongRow[]): void {
     const ids = rows.map((r) => r.entryId).filter((id): id is string => !!id);
     if (ids.length === rows.length) this.reorder.emit(ids);
   }

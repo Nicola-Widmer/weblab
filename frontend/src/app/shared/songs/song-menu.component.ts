@@ -101,14 +101,14 @@ export class SongMenuComponent {
   readonly removeFromPlaylist = output<{ song: SongDto; entryId: string }>();
   readonly addToPlaylist = output<{ song: SongDto; playlistId: string }>();
 
-  private readonly playLabel = translate('songs.row.play');
-  private readonly editLabel = translate('songs.row.edit');
-  private readonly deleteLabel = translate('songs.row.delete');
-  private readonly moveUpLabel = translate('songs.row.moveUp');
-  private readonly moveDownLabel = translate('songs.row.moveDown');
-  private readonly removeFromPlaylistLabel = translate('songs.row.removeFromPlaylist');
-  private readonly addToPlaylistLabel = translate('songs.row.addToPlaylist');
-  private readonly noPlaylistsLabel = translate('songs.row.noPlaylists');
+  readonly #playLabel = translate('songs.row.play');
+  readonly #editLabel = translate('songs.row.edit');
+  readonly #deleteLabel = translate('songs.row.delete');
+  readonly #moveUpLabel = translate('songs.row.moveUp');
+  readonly #moveDownLabel = translate('songs.row.moveDown');
+  readonly #removeFromPlaylistLabel = translate('songs.row.removeFromPlaylist');
+  readonly #addToPlaylistLabel = translate('songs.row.addToPlaylist');
+  readonly #noPlaylistsLabel = translate('songs.row.noPlaylists');
 
   protected readonly items = computed<MenuItem[]>(() => {
     const playlists = this.playlists();
@@ -117,13 +117,13 @@ export class SongMenuComponent {
       this.reorderable() && this.variant() === 'playlist' && entryId
         ? [
             {
-              label: `${this.moveUpLabel()}`,
+              label: `${this.#moveUpLabel()}`,
               icon: 'move-up',
               disabled: this.firstRow(),
               command: () => this.move.emit({ entryId, direction: -1 }),
             },
             {
-              label: `${this.moveDownLabel()}`,
+              label: `${this.#moveDownLabel()}`,
               icon: 'move-down',
               disabled: this.lastRow(),
               command: () => this.move.emit({ entryId, direction: 1 }),
@@ -133,30 +133,30 @@ export class SongMenuComponent {
     const removeItem: MenuItem =
       this.variant() === 'playlist'
         ? {
-            label: `${this.removeFromPlaylistLabel()}`,
+            label: `${this.#removeFromPlaylistLabel()}`,
             icon: 'trash',
             disabled: !entryId,
             command: () => entryId && this.removeFromPlaylist.emit({ song: this.song(), entryId }),
           }
         : {
-            label: `${this.deleteLabel()}`,
+            label: `${this.#deleteLabel()}`,
             icon: 'trash',
             command: () => this.delete.emit(this.song()),
           };
     return [
       {
-        label: `${this.playLabel()}`,
+        label: `${this.#playLabel()}`,
         icon: 'play',
         command: () => this.play.emit(this.song()),
       },
       {
-        label: `${this.editLabel()}`,
+        label: `${this.#editLabel()}`,
         icon: 'edit',
         command: () => this.edit.emit(this.song()),
       },
       ...reorderItems,
       {
-        label: `${this.addToPlaylistLabel()}`,
+        label: `${this.#addToPlaylistLabel()}`,
         icon: 'add',
         items: playlists.length
           ? playlists.map((playlist) => ({
@@ -164,7 +164,7 @@ export class SongMenuComponent {
               command: () =>
                 this.addToPlaylist.emit({ song: this.song(), playlistId: playlist.id }),
             }))
-          : [{ label: `${this.noPlaylistsLabel()}`, disabled: true }],
+          : [{ label: `${this.#noPlaylistsLabel()}`, disabled: true }],
       },
       removeItem,
     ];
