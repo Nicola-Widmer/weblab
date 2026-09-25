@@ -22,6 +22,13 @@
    The frontend reports no errors.], [Open. Failures in production show up
    only in container stdout. A fix would add structured logging (e.g.
    pino), a health check and OpenTelemetry.],
+  [Playlist song references], [Adding an entry only checks that `songId`
+   is a UUID. A user can add a song ID that does not exist or belongs to
+   another user. Nothing leaks: the playlist stores only the ID, and
+   `/api/songs/:id` is owner-scoped (404). The entry just leads
+   nowhere.], [Open. A fix would have the playlists context ask songs
+   whether the caller owns the song before adding it, and return 404
+   otherwise.],
   [Dev credentials], [The compose stack is dev-only. The Keycloak realm import
    seeds user `dev`/`dev` and client secret `dev-secret-change-me`. Keycloak
    runs `start-dev` with admin `admin`/`admin` and self-registration on.
