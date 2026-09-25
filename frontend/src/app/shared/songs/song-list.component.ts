@@ -81,7 +81,7 @@ export interface SongRow {
                   [reorderable]="true"
                   [playlists]="playlists()"
                   [variant]="variant()"
-                  (play)="play.emit($event)"
+                  (playSong)="playSong.emit($event)"
                   (edit)="edit.emit($event)"
                   (delete)="delete.emit($event)"
                   (move)="onMove($event)"
@@ -101,7 +101,7 @@ export interface SongRow {
                   [firstRow]="first"
                   [playlists]="playlists()"
                   [variant]="variant()"
-                  (play)="play.emit($event)"
+                  (playSong)="playSong.emit($event)"
                   (edit)="edit.emit($event)"
                   (delete)="delete.emit($event)"
                   (removeFromPlaylist)="removeFromPlaylist.emit($event)"
@@ -125,7 +125,7 @@ export class SongListComponent {
   readonly variant = input<'library' | 'playlist'>('library');
   /** Playlist detail only: enable drag + "Move Up/Down" reordering. */
   readonly reorderable = input(false);
-  readonly play = output<SongDto>();
+  readonly playSong = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
   readonly removeFromPlaylist = output<{ song: SongDto; entryId: string }>();

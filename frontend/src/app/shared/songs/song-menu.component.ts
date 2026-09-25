@@ -94,7 +94,7 @@ export class SongMenuComponent {
   readonly firstRow = input(false);
   /** Disables "Move Down" — this is the last row. */
   readonly lastRow = input(false);
-  readonly play = output<SongDto>();
+  readonly playSong = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
   readonly move = output<{ entryId: string; direction: -1 | 1 }>();
@@ -147,7 +147,7 @@ export class SongMenuComponent {
       {
         label: `${this.#playLabel()}`,
         icon: 'play',
-        command: () => this.play.emit(this.song()),
+        command: () => this.playSong.emit(this.song()),
       },
       {
         label: `${this.#editLabel()}`,

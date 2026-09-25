@@ -62,7 +62,7 @@ import { PlayerVolumeComponent } from './ui/player-volume.component';
           [playing]="player.playing()"
           [disabled]="!song"
           (previous)="player.previous()"
-          (toggle)="player.toggle()"
+          (togglePlay)="player.toggle()"
           (next)="player.next()"
         />
         <app-player-volume

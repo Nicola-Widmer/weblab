@@ -40,7 +40,7 @@ import { SongListComponent, type SongRow } from './song-list.component';
       [playlists]="playlists.data() ?? []"
       [variant]="variant()"
       [reorderable]="reorderable()"
-      (play)="play($event)"
+      (playSong)="play($event)"
       (edit)="editing.set($event)"
       (delete)="remove($event)"
       (removeFromPlaylist)="removeFromPlaylist($event)"

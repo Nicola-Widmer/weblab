@@ -17,9 +17,6 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
-      // Outputs like `play`, `toggle` and `cancel` are domain verbs. The native
-      // events of the same name don't bubble, so they can't collide.
-      '@angular-eslint/no-output-native': 'off',
       '@angular-eslint/directive-selector': [
         'error',
         {

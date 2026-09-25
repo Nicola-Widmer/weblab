@@ -49,7 +49,7 @@ import { PlaylistRenameFormComponent } from './playlist-rename-form.component';
           class="absolute inset-x-4 bottom-4 rounded-lg bg-surface-0 dark:bg-surface-950"
           [name]="playlist().name"
           (save)="commitRename($event)"
-          (cancel)="editing.set(false)"
+          (cancelled)="editing.set(false)"
         />
       } @else {
         <div

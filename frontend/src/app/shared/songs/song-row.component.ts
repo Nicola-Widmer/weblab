@@ -34,7 +34,7 @@ import { SongMenuComponent } from './song-menu.component';
         type="button"
         class="absolute inset-0 z-0 cursor-pointer"
         [attr.aria-label]="'songs.row.playTitle' | translate: { title: s.title }"
-        (click)="play.emit(s)"
+        (click)="playSong.emit(s)"
       ></button>
       <div class="relative size-[35px] self-center">
         <img
@@ -78,7 +78,7 @@ import { SongMenuComponent } from './song-menu.component';
             [lastRow]="lastRow()"
             [playlists]="playlists()"
             [variant]="variant()"
-            (play)="play.emit($event)"
+            (playSong)="playSong.emit($event)"
             (edit)="edit.emit($event)"
             (delete)="delete.emit($event)"
             (move)="move.emit($event)"
@@ -104,7 +104,7 @@ export class SongRowComponent {
   readonly playlists = input<PlaylistDto[]>([]);
   /** Forwarded to `app-song-menu` — see its `variant` input. */
   readonly variant = input<'library' | 'playlist'>('library');
-  readonly play = output<SongDto>();
+  readonly playSong = output<SongDto>();
   readonly edit = output<SongDto>();
   readonly delete = output<SongDto>();
   readonly move = output<{ entryId: string; direction: -1 | 1 }>();

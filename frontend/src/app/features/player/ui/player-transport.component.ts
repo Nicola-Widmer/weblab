@@ -25,7 +25,7 @@ import { LucidePause, LucidePlay, LucideSkipBack, LucideSkipForward } from '@luc
       class="flex size-9 items-center justify-center rounded-full bg-surface-900 text-surface-0 dark:bg-surface-0 dark:text-surface-900"
       [disabled]="disabled()"
       [attr.aria-label]="(playing() ? 'player.pause' : 'player.play') | translate"
-      (click)="toggle.emit()"
+      (click)="togglePlay.emit()"
     >
       @if (playing()) {
         <svg lucidePause class="size-5"></svg>
@@ -47,6 +47,6 @@ export class PlayerTransportComponent {
   readonly playing = input(false);
   readonly disabled = input(false);
   readonly previous = output<void>();
-  readonly toggle = output<void>();
+  readonly togglePlay = output<void>();
   readonly next = output<void>();
 }

@@ -24,7 +24,7 @@ import { InputText } from '@openng/optimus-ui/inputtext';
         class="w-full"
         [value]="draft()"
         (input)="draft.set($any($event.target).value)"
-        (keydown.escape)="cancel.emit()"
+        (keydown.escape)="cancelled.emit()"
         [attr.aria-label]="'playlists.rename.label' | translate"
       />
       <div class="flex justify-end gap-1 sm:contents">
@@ -43,7 +43,7 @@ import { InputText } from '@openng/optimus-ui/inputtext';
           severity="secondary"
           [text]="true"
           [rounded]="true"
-          (onClick)="cancel.emit()"
+          (onClick)="cancelled.emit()"
           [ariaLabel]="'playlists.rename.cancel' | translate"
         >
           <svg lucideX class="size-4"></svg>
@@ -56,7 +56,7 @@ export class PlaylistRenameFormComponent {
   readonly name = input.required<string>();
 
   readonly save = output<string>();
-  readonly cancel = output<void>();
+  readonly cancelled = output<void>();
 
   /** Seeded from `name`, free to edit; re-seeds if the host swaps the name. */
   protected readonly draft = linkedSignal(() => this.name());
