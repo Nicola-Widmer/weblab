@@ -27,6 +27,15 @@ built yet.
 
 ## Run it — Docker Compose
 
+
+Copy [`.env.example`](.env.example) to `.env` to override any default.
+
+> **Dev credentials only — do not deploy this stack as-is.** Keycloak runs in
+> `start-dev` mode and imports [`keycloak/import/wmp-realm.json`](keycloak/import/wmp-realm.json)
+> with the user `dev` / `dev` and client secret `dev-secret-change-me`. The
+> Keycloak admin is `admin` / `admin`, and Postgres and MinIO fall back to
+> default passwords. See arc42 §11 "Risks and Technical Debt".
+
 ```bash
 docker compose up
 ```
@@ -45,14 +54,6 @@ Optional S3-compatible storage (runs MinIO): NOT IMPLEMENTED YET
 ```bash
 docker compose --profile storage-s3 up
 ```
-
-Copy [`.env.example`](.env.example) to `.env` to override any default.
-
-> **Dev credentials only — do not deploy this stack as-is.** Keycloak runs in
-> `start-dev` mode and imports [`keycloak/import/wmp-realm.json`](keycloak/import/wmp-realm.json)
-> with the user `dev` / `dev` and client secret `dev-secret-change-me`. The
-> Keycloak admin is `admin` / `admin`, and Postgres and MinIO fall back to
-> default passwords. See arc42 §11 "Risks and Technical Debt".
 
 ## Run it — native dev (hot reload)
 
